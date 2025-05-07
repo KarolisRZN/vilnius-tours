@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
 
+function decodeToken(token) {
+  try {
+    const payload = token.split(".")[1];
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+}
+
 function AdminPanel() {
   const [tours, setTours] = useState([]);
   const [form, setForm] = useState({
@@ -11,6 +20,17 @@ function AdminPanel() {
   });
   const [editingId, setEditingId] = useState(null);
   const [token, setToken] = useState(""); // Admin JWT token
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check admin role when token changes
+  useEffect(() => {
+    if (token) {
+      const decoded = decodeToken(token);
+      setIsAdmin(decoded && decoded.role === "admin");
+    } else {
+      setIsAdmin(false);
+    }
+  }, [token]);
 
   // Fetch tours
   const fetchTours = () => {
@@ -79,6 +99,24 @@ function AdminPanel() {
     if (res.ok) fetchTours();
     else alert("Delete failed");
   };
+
+  if (!isAdmin) {
+    return (
+      <section className="max-w-3xl mx-auto py-10 px-4">
+        <h2 className="text-3xl font-bold mb-6 text-green-700">Admin Panel</h2>
+        <input
+          type="password"
+          placeholder="Paste your admin JWT token here"
+          className="w-full mb-4 p-2 border rounded"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+        />
+        <div className="text-red-600 font-semibold">
+          Access denied. Admins only.
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="max-w-3xl mx-auto py-10 px-4">
