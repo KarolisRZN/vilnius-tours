@@ -38,13 +38,10 @@ function Navbar() {
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img
-              src="https://flowbite.com/docs/images/logo.svg"
-              className="h-8"
+              src="https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Logo_vivid3-1.png?quality=100.3021072110190"
+              className="h-16"
               alt="Logo"
             />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-gray-900">
-              Vilnius Tours
-            </span>
           </Link>
           <div className="flex items-center space-x-2">
             <button

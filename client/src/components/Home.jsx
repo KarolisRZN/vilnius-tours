@@ -6,7 +6,7 @@ const images = [
   "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Observatorijos-kiemas.jpg?quality=100.3021072110190",
   "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Universitetas.jpg?quality=100.3021072110190",
   "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Katedros-pozemiai.jpg?quality=100.3021072110190",
-  "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Prezidentura.jpg?quality=100.3021072110190"
+  "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Prezidentura.jpg?quality=100.3021072110190",
 ];
 
 function Home() {
@@ -37,8 +37,9 @@ function Home() {
             style={{ top: 0, left: 0 }}
           />
         ))}
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+        {/* Always dark overlay, stronger for permanent dimming */}
+        <div className="absolute inset-0 bg-black/30 pointer-events-none z-20" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-30">
           <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg text-center">
             Welcome to Vilnius Tours!
           </h1>
