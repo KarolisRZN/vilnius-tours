@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   getAllTours,
@@ -6,13 +6,14 @@ const {
   createTour,
   updateTour,
   deleteTour,
-} = require('../controllers/toursController');
+} = require("../controllers/toursController");
+const { authenticateJWT, isAdmin } = require("../middleware/auth");
 
 // Routes
-router.get('/', getAllTours);
-router.get('/:id', getTourById);
-router.post('/', createTour);
-router.put('/:id', updateTour);
-router.delete('/:id', deleteTour);
+router.get("/", getAllTours);
+router.get("/:id", getTourById);
+router.post("/", authenticateJWT, isAdmin, createTour);
+router.put("/:id", authenticateJWT, isAdmin, updateTour);
+router.delete("/:id", authenticateJWT, isAdmin, deleteTour);
 
 module.exports = router;

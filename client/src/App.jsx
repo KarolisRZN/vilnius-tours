@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import RegisterLogin from "./components/RegisterLogin";
 import NotFound from "./components/NotFound";
+import ToursPage from "./pages/ToursPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterLogin />} />
+          <Route path="/tours" element={<ToursPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
