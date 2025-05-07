@@ -3,9 +3,10 @@ import { Link } from "react-router";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="bg-white border-gray-200 dark:bg-gray-900">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-gray-200 border-b border-gray-300">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link
           to="/"
@@ -14,22 +15,16 @@ function Navbar() {
           <img
             src="https://flowbite.com/docs/images/logo.svg"
             className="h-8"
-            alt="Flowbite Logo"
+            alt="Logo"
           />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-            Flowbite
+          <span className="self-center text-2xl font-semibold whitespace-nowrap text-gray-900">
+            Vilnius Tours
           </span>
         </Link>
-        <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+        <div className="flex items-center space-x-2">
           <button
             type="button"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            Get started
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-700 rounded-lg md:hidden hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
             aria-controls="navbar-cta"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((prev) => !prev)}
@@ -51,49 +46,110 @@ function Navbar() {
               />
             </svg>
           </button>
+          <Link
+            to="/prisijunk"
+            className="hidden md:inline-block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
+          >
+            Prisijunk
+          </Link>
         </div>
         <div
-          className={`items-center justify-between w-full md:flex md:w-auto md:order-1 ${
+          className={`items-center justify-between w-full md:flex md:w-auto ${
             menuOpen ? "flex" : "hidden"
           }`}
           id="navbar-cta"
         >
-          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-300 rounded-lg bg-gray-100 md:space-x-4 md:flex-row md:mt-0 md:border-0 md:bg-gray-200">
             <li>
               <Link
                 to="/"
-                className="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
-                aria-current="page"
+                className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                Home
+                Pagrindinis
+              </Link>
+            </li>
+            <li className="relative">
+              <button
+                type="button"
+                className="flex items-center py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
+              >
+                Ekskursijos
+                <svg
+                  className="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                className={`absolute left-0 z-10 mt-2 w-48 rounded-md shadow-lg bg-white border border-gray-200 ${
+                  dropdownOpen ? "block" : "hidden"
+                }`}
+              >
+                <ul className="py-1">
+                  <li>
+                    <Link
+                      to="/ekskursijos-grupems"
+                      className="block px-4 py-2 text-gray-700 hover:bg-green-100"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Ekskursijos grupėms
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/ekskursijos-pavieniams"
+                      className="block px-4 py-2 text-gray-700 hover:bg-green-100"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Ekskursijos pavieniams
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <Link
+                to="/apie-mus"
+                className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
+                onClick={() => setMenuOpen(false)}
+              >
+                Apie mus
               </Link>
             </li>
             <li>
               <Link
-                to="/about"
-                className="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                to="/atsiliepimai"
+                className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                About
+                Atsiliepimai
               </Link>
             </li>
-            <li>
+            <li className="md:hidden">
               <Link
-                to="/services"
-                className="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                to="/prisijunk"
+                className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
                 onClick={() => setMenuOpen(false)}
               >
-                Services
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/contact"
-                className="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Contact
+                Prisijunk
               </Link>
             </li>
           </ul>

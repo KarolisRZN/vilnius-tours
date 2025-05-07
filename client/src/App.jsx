@@ -4,7 +4,6 @@ import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-
 function App() {
   return (
     <ErrorBoundary>
