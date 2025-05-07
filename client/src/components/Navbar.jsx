@@ -1,9 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check login status on mount
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setIsLoggedIn(!!user);
+  }, []);
+
+  // Listen for login/logout events from other tabs/windows
+  useEffect(() => {
+    const handleStorage = () => {
+      const user = localStorage.getItem("user");
+      setIsLoggedIn(!!user);
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setMenuOpen(false);
+    window.location.href = "/"; // Optionally redirect to home
+  };
 
   return (
     <>
@@ -47,12 +71,21 @@ function Navbar() {
                 />
               </svg>
             </button>
-            <Link
-              to="/register"
-              className="hidden md:inline-block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
-            >
-              Sign Up
-            </Link>
+            {!isLoggedIn ? (
+              <Link
+                to="/register"
+                className="hidden md:inline-block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
+              >
+                Sign Up
+              </Link>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="hidden md:inline-block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
+              >
+                Logout
+              </button>
+            )}
           </div>
           <div
             className={`items-center justify-between w-full md:flex md:w-auto ${
@@ -144,15 +177,27 @@ function Navbar() {
                   Reviews
                 </Link>
               </li>
-              <li className="md:hidden">
-                <Link
-                  to="/register"
-                  className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Sign Up
-                </Link>
-              </li>
+              {!isLoggedIn && (
+                <li className="md:hidden">
+                  <Link
+                    to="/register"
+                    className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </li>
+              )}
+              {isLoggedIn && (
+                <li className="md:hidden">
+                  <button
+                    onClick={handleLogout}
+                    className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition w-full text-left"
+                  >
+                    Logout
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

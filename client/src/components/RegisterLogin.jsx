@@ -20,7 +20,8 @@ function RegisterLogin() {
       const data = await res.json();
       if (res.ok) {
         setSuccess("Login successful!");
-        // Save token or user info if needed
+        localStorage.setItem("user", JSON.stringify(data.user));
+        window.dispatchEvent(new Event("storage")); // To trigger Navbar update
       } else {
         setError(data.message || "Login failed.");
       }
@@ -45,6 +46,8 @@ function RegisterLogin() {
       const data = await res.json();
       if (res.ok) {
         setSuccess("Registration successful!");
+        localStorage.setItem("user", JSON.stringify(data.user)); 
+        window.dispatchEvent(new Event("storage"));
       } else {
         setError(data.message || "Registration failed.");
       }
