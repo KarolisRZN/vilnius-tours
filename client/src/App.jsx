@@ -6,14 +6,16 @@ import NotFound from "./components/NotFound";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
+    <div className="bg-white min-h-screen">
+      <BrowserRouter>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterLogin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+    </div>
   );
 }
 
