@@ -83,7 +83,9 @@ function RegisterLogin() {
       setLoading(false);
 
       if (res.ok) {
-        setSuccess(tab === "login" ? "Login successful!" : "Registration successful!");
+        setSuccess(
+          tab === "login" ? "Login successful!" : "Registration successful!"
+        );
         localStorage.setItem("user", JSON.stringify(data.user));
         window.dispatchEvent(new Event("storage"));
         setTimeout(() => navigate("/"), 1000);
@@ -101,7 +103,8 @@ function RegisterLogin() {
       <div className="grid md:grid-cols-2 items-center gap-10 max-w-6xl max-md:max-w-md w-full">
         <div>
           <h2 className="lg:text-5xl text-3xl font-bold text-slate-900">
-            Seamless {tab === "login" ? "Login" : "Registration"} for Exclusive Access
+            Seamless {tab === "login" ? "Login" : "Registration"} for Exclusive
+            Access
           </h2>
           <p className="text-sm mt-6 text-slate-500">
             Enjoy a smooth {tab === "login" ? "login" : "sign-up"} experience.
@@ -139,7 +142,9 @@ function RegisterLogin() {
             {tab === "login" ? "Sign in" : "Sign up"}
           </h3>
 
-          {errors.server && <div className="mb-4 text-red-600">{errors.server}</div>}
+          {errors.server && (
+            <div className="mb-4 text-red-600">{errors.server}</div>
+          )}
           {success && <div className="mb-4 text-green-600">{success}</div>}
 
           <div className="space-y-6">
@@ -160,7 +165,9 @@ function RegisterLogin() {
                   }`}
                   placeholder="Enter your name"
                 />
-                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
               </div>
             )}
 
@@ -180,7 +187,9 @@ function RegisterLogin() {
                 }`}
                 placeholder="Enter your email"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div className="relative">
@@ -230,7 +239,9 @@ function RegisterLogin() {
                   placeholder="Confirm password"
                 />
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.confirmPassword}
+                  </p>
                 )}
               </div>
             )}
