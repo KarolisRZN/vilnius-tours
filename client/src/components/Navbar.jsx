@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
+import { FaUserCircle } from "react-icons/fa";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dropdownRef = useRef(null);
+  const userDropdownRef = useRef(null);
 
   // Check login status on mount
   useEffect(() => {
@@ -22,11 +26,36 @@ function Navbar() {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target)
+      ) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setMenuOpen(false);
-    window.location.href = "/"; // Optionally redirect to home
+    window.location.href = "/";
   };
 
   return (
@@ -43,69 +72,24 @@ function Navbar() {
               alt="Logo"
             />
           </Link>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-700 rounded-lg md:hidden hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-              aria-controls="navbar-cta"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((prev) => !prev)}
-            >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="w-5 h-5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 17 14"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M1 1h15M1 7h15M1 13h15"
-                />
-              </svg>
-            </button>
-            {!isLoggedIn ? (
-              <Link
-                to="/register"
-                className="hidden md:inline-block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
-              >
-                Sign Up
-              </Link>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="hidden md:inline-block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
-              >
-                Logout
-              </button>
-            )}
-          </div>
-          <div
-            className={`items-center justify-between w-full md:flex md:w-auto ${
-              menuOpen ? "flex" : "hidden"
-            }`}
-            id="navbar-cta"
-          >
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-300 rounded-lg bg-gray-100 md:space-x-4 md:flex-row md:mt-0 md:border-0 md:bg-gray-200">
+
+          {/* All buttons on the right */}
+          <div className="flex items-center space-x-2 ml-auto">
+            {/* Desktop menu */}
+            <ul className="hidden md:flex items-center space-x-2">
               <li>
                 <Link
-                  to="/"
-                  className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
-                  onClick={() => setMenuOpen(false)}
+                  to="/about"
+                  className="py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
                 >
-                  Home
+                  About Us
                 </Link>
               </li>
-              <li className="relative">
+              <li className="relative" ref={dropdownRef}>
                 <button
                   type="button"
-                  className="flex items-center py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
+                  className="flex items-center py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
                   onClick={() => setDropdownOpen((prev) => !prev)}
-                  onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
                 >
                   Tours
                   <svg
@@ -156,43 +140,62 @@ function Navbar() {
                   </ul>
                 </div>
               </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/reviews"
-                  className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 md:bg-green-600 md:hover:bg-green-700 md:text-white"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Reviews
-                </Link>
-              </li>
-              {!isLoggedIn && (
-                <li className="md:hidden">
+              {!isLoggedIn ? (
+                <li>
                   <Link
                     to="/register"
-                    className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
-                    onClick={() => setMenuOpen(false)}
+                    className="py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
                   >
                     Sign Up
                   </Link>
                 </li>
-              )}
-              {isLoggedIn && (
-                <li className="md:hidden">
+              ) : (
+                <li className="relative" ref={userDropdownRef}>
                   <button
-                    onClick={handleLogout}
-                    className="block py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition w-full text-left"
+                    type="button"
+                    tabIndex={0}
+                    onClick={() => setUserDropdownOpen((prev) => !prev)}
+                    onBlur={() =>
+                      setTimeout(() => setUserDropdownOpen(false), 150)
+                    }
+                    className="flex items-center justify-center text-white bg-green-600 hover:bg-green-700 rounded-full w-10 h-10 focus:outline-none transition"
                   >
-                    Logout
+                    <FaUserCircle size={28} />
                   </button>
+                  {/* User dropdown */}
+                  <div
+                    className={`absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white border border-gray-200 z-50 ${
+                      userDropdownOpen ? "block" : "hidden"
+                    }`}
+                  >
+                    <ul className="py-1">
+                      <li>
+                        <Link
+                          to="/account"
+                          className="block px-4 py-2 text-gray-700 hover:bg-green-100"
+                          tabIndex={0}
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                          }}
+                        >
+                          Account Settings
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          tabIndex={0}
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-green-100"
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               )}
             </ul>
