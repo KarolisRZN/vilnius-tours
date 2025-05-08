@@ -34,6 +34,8 @@ function AdminPanel() {
   const [editDates, setEditDates] = useState([]); // Dates for the tour being edited
   const [editDateInput, setEditDateInput] = useState(""); // New date input
   const [editDateId, setEditDateId] = useState(null); // If editing an existing date
+  const [date, setDate] = useState(""); // New date for form
+  const [time, setTime] = useState(""); // New time for form
 
   const token =
     localStorage.getItem("token") ||

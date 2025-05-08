@@ -13,16 +13,24 @@ exports.getAllTours = async (req, res) => {
 
 // Get tour by ID
 exports.getTourById = async (req, res) => {
-  const { id } = req.params;
   try {
-    const result = await pool.query("SELECT * FROM tours WHERE id = $1", [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Tour not found" });
-    }
-    res.status(200).json(result.rows[0]);
+    const tourRes = await pool.query("SELECT * FROM tours WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (tourRes.rows.length === 0)
+      return res.status(404).json({ message: "Tour not found" });
+    const tour = tourRes.rows[0];
+
+    // Fetch available dates for this tour
+    const datesRes = await pool.query(
+      "SELECT id, date, time FROM tour_dates WHERE tour_id = $1 ORDER BY date, time",
+      [tour.id]
+    );
+    tour.dates = datesRes.rows;
+
+    res.json(tour);
   } catch (error) {
-    console.error("Error getting tour:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -99,17 +107,35 @@ exports.deleteTour = async (req, res) => {
   }
 };
 
-// Add a date to a tour
+// Add a date (with time) to a tour
 exports.addTourDate = async (req, res) => {
   const { tourId } = req.params;
-  const { date } = req.body;
+  const { date, time } = req.body;
   if (!date) return res.status(400).json({ error: "Date is required" });
   try {
     const result = await pool.query(
-      "INSERT INTO tour_dates (tour_id, date) VALUES ($1, $2) RETURNING *",
-      [tourId, date]
+      "INSERT INTO tour_dates (tour_id, date, time) VALUES ($1, $2, $3) RETURNING *",
+      [tourId, date, time]
     );
     res.status(201).json({ message: "Date added", date: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Edit a tour date
+exports.updateTourDate = async (req, res) => {
+  const { dateId } = req.params;
+  const { date, time } = req.body;
+  try {
+    const result = await pool.query(
+      "UPDATE tour_dates SET date = $1, time = $2 WHERE id = $3 RETURNING *",
+      [date, time, dateId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Date not found" });
+    }
+    res.json({ message: "Date updated", date: result.rows[0] });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
