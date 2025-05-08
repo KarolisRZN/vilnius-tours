@@ -1,12 +1,34 @@
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import RegisterLogin from "./components/RegisterLogin";
 import NotFound from "./components/NotFound";
 import ToursPage from "./pages/ToursPage";
 import AdminPanel from "./pages/AdminPanel";
+import TourDetails from "./pages/TourDetails";
+
+// Helper to check admin
+const isAdmin = () => {
+  const userStr = localStorage.getItem("user");
+  if (!userStr) return false;
+  try {
+    const user = JSON.parse(userStr);
+    return user.role === "admin";
+  } catch {
+    return false;
+  }
+};
 
 function App() {
+  const [authChanged, setAuthChanged] = useState(0);
+
+  useEffect(() => {
+    const handler = () => setAuthChanged((v) => v + 1);
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
   return (
     <div className="bg-white min-h-screen">
       <BrowserRouter>
@@ -15,7 +37,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterLogin />} />
           <Route path="/tours" element={<ToursPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/tours/:id" element={<TourDetails />} />
+          <Route
+            path="/admin"
+            element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

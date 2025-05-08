@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 function ToursPage() {
   const [tours, setTours] = useState([]);
@@ -99,7 +100,9 @@ function ToursPage() {
             >
               <div className="flex-1 mb-4 md:mb-0">
                 <h3 className="text-xl font-semibold mb-2 text-green-800 text-center">
-                  {tour.title}
+                  <Link to={`/tours/${tour.id}`} className="hover:underline">
+                    {tour.title}
+                  </Link>
                 </h3>
                 <p className="text-gray-700 text-center mb-2">
                   {tour.description}

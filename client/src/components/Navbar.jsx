@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { FaUserCircle } from "react-icons/fa";
+import { Navigate } from "react-router-dom";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,20 +12,23 @@ function Navbar() {
   const dropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
 
+  // Helper to check admin
+  const checkAdmin = () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return false;
+    try {
+      const user = JSON.parse(userStr);
+      return user.role === "admin";
+    } catch {
+      return false;
+    }
+  };
+
   // Check login status and role on mount
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     setIsLoggedIn(!!userStr);
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        setIsAdmin(user.role === "admin"); // <-- fix here
-      } catch {
-        setIsAdmin(false);
-      }
-    } else {
-      setIsAdmin(false);
-    }
+    setIsAdmin(checkAdmin());
   }, []);
 
   // Listen for login/logout events from other tabs/windows
@@ -32,16 +36,7 @@ function Navbar() {
     const handleStorage = () => {
       const userStr = localStorage.getItem("user");
       setIsLoggedIn(!!userStr);
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          setIsAdmin(user.role === "admin"); // <-- and here
-        } catch {
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
+      setIsAdmin(checkAdmin());
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
