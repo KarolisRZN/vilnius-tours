@@ -24,7 +24,9 @@ function ToursPage() {
   const handleAddDate = async (tourId) => {
     const date = selectedDates[tourId];
     if (!date) return;
-    const token = localStorage.getItem("token") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTM2MzQsImV4cCI6MTc0NjY5NzIzNH0.ejrmSE3KHUq5lVgiseMhNgfCAQ0QoO6BEhWaRQeN5co";
+    const token =
+      localStorage.getItem("token") ||
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTM2MzQsImV4cCI6MTc0NjY5NzIzNH0.ejrmSE3KHUq5lVgiseMhNgfCAQ0QoO6BEhWaRQeN5co";
     const res = await fetch(`/api/tours/${tourId}/dates`, {
       method: "POST",
       headers: {
@@ -137,7 +139,9 @@ function ToursPage() {
                 </button>
                 <ul className="mt-2 text-sm text-gray-700">
                   {(datesByTour[tour.id] || []).map((d) => (
-                    <li key={d.id}>{d.date}</li>
+                    <li key={d.id}>
+                      {new Date(d.date).toLocaleDateString("en-CA")}
+                    </li>
                   ))}
                 </ul>
               </div>
