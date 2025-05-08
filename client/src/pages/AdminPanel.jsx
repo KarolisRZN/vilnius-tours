@@ -24,13 +24,15 @@ function AdminPanel() {
   const [imageFile, setImageFile] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [datesByTour, setDatesByTour] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [editDates, setEditDates] = useState([]); // Dates for the tour being edited
+  const [editDateInput, setEditDateInput] = useState(""); // New date input
+  const [editDateId, setEditDateId] = useState(null); // If editing an existing date
 
-  // Always get token from localStorage
   const token =
     localStorage.getItem("token") ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTI4MDMsImV4cCI6MTc0NjY5NjQwM30.n7QK9IcBYnTNdspDnuLnHVVxcvLa2k6nuPjGYmZD5pM.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTExNDksImV4cCI6MTc0NjY5NDc0OX0.H_NVFNXDhns8jtVPc-xdwIrR6JsorOb2Hz9hMc21NC8";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTM2MzQsImV4cCI6MTc0NjY5NzIzNH0.ejrmSE3KHUq5lVgiseMhNgfCAQ0QoO6BEhWaRQeN5co";
 
-  // Check admin role when token changes
   useEffect(() => {
     if (token) {
       const decoded = decodeToken(token);
@@ -40,7 +42,6 @@ function AdminPanel() {
     }
   }, [token]);
 
-  // Fetch tours
   const fetchTours = () => {
     fetch("/api/tours")
       .then((res) => res.json())
@@ -52,25 +53,28 @@ function AdminPanel() {
     fetchTours();
   }, []);
 
-  // Fetch dates for a tour
   const fetchTourDates = async (tourId) => {
     const res = await fetch(`/api/tours/${tourId}/dates`);
     const dates = await res.json();
     setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
   };
 
-  // Handle form input
+  // Fetch dates for a tour (for modal)
+  const fetchEditDates = async (tourId) => {
+    const res = await fetch(`/api/tours/${tourId}/dates`);
+    const dates = await res.json();
+    setEditDates(dates);
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle file input change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
   };
 
-  // Handle add or edit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -88,7 +92,6 @@ function AdminPanel() {
     }
   };
 
-  // Helper to submit tour with image URL or base64
   const submitTour = async (imageUrl) => {
     const method = editingId ? "PUT" : "POST";
     const url = editingId ? `/api/tours/${editingId}` : "/api/tours";
@@ -111,13 +114,14 @@ function AdminPanel() {
       });
       setEditingId(null);
       setImageFile(null);
+      setShowModal(false);
       fetchTours();
     } else {
       alert("Error: " + (await res.text()));
     }
   };
 
-  // Handle edit button
+  // When opening modal for edit
   const handleEdit = (tour) => {
     setForm({
       title: tour.title,
@@ -128,36 +132,66 @@ function AdminPanel() {
       image: tour.image || "",
     });
     setEditingId(tour.id);
+    setShowModal(true);
+    fetchEditDates(tour.id);
+    setEditDateInput("");
+    setEditDateId(null);
   };
 
-  // Handle delete
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this tour?")) return;
-    const res = await fetch(`/api/tours/${id}`, {
+  // Add or update a date in modal
+  const handleSaveDate = async () => {
+    if (!editDateInput) return;
+    if (editDateId) {
+      // Update existing date
+      const res = await fetch(`/api/tour-dates/${editDateId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ date: editDateInput }),
+      });
+      if (res.ok) {
+        setEditDateId(null);
+        setEditDateInput("");
+        fetchEditDates(editingId);
+      } else {
+        alert("Failed to update date");
+      }
+    } else {
+      // Add new date
+      const res = await fetch(`/api/tours/${editingId}/dates`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ date: editDateInput }),
+      });
+      if (res.ok) {
+        setEditDateInput("");
+        fetchEditDates(editingId);
+      } else {
+        alert("Failed to add date");
+      }
+    }
+  };
+
+  // Edit a date (fill input)
+  const handleEditDateClick = (dateObj) => {
+    setEditDateInput(dateObj.date.slice(0, 10));
+    setEditDateId(dateObj.id);
+  };
+
+  // Delete a date
+  const handleDeleteDate = async (dateId) => {
+    if (!window.confirm("Delete this date?")) return;
+    const res = await fetch(`/api/tour-dates/${dateId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (res.ok) fetchTours();
+    if (res.ok) fetchEditDates(editingId);
     else alert("Delete failed");
-  };
-
-  // Add a date to a tour
-  const handleAddDate = async (tourId) => {
-    if (!selectedDate) return;
-    const res = await fetch(`/api/tours/${tourId}/dates`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ date: selectedDate }),
-    });
-    if (res.ok) {
-      setSelectedDate("");
-      fetchTourDates(tourId);
-    } else {
-      alert("Failed to add date");
-    }
   };
 
   if (!isAdmin) {
@@ -172,119 +206,214 @@ function AdminPanel() {
   }
 
   return (
-    <section className="max-w-3xl mx-auto py-10 px-4">
-      <h2 className="text-3xl font-bold mb-6 text-green-700">Admin Panel</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-3 bg-gray-50 p-4 rounded shadow"
-      >
-        <input
-          name="title"
-          placeholder="Title"
-          className="w-full p-2 border rounded"
-          value={form.title}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          className="w-full p-2 border rounded"
-          value={form.description}
-          onChange={handleChange}
-          required
-        />
-        <select
-          name="category"
-          className="w-full p-2 border rounded"
-          value={form.category}
-          onChange={handleChange}
-          required
-        >
-          <option value="group">Group</option>
-          <option value="individual">Individual</option>
-        </select>
-        <input
-          name="price"
-          type="number"
-          step="0.01"
-          placeholder="Price"
-          className="w-full p-2 border rounded"
-          value={form.price}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="duration"
-          placeholder="Duration"
-          className="w-full p-2 border rounded"
-          value={form.duration}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="image"
-          placeholder="Image URL"
-          className="w-full p-2 border rounded"
-          value={form.image || ""}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
-        />
-        <div className="flex items-center gap-2">
-          <label className="block">
-            <span className="text-gray-700">Or choose a photo:</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-              onChange={handleImageChange}
-            />
-          </label>
-          {imageFile && (
-            <span className="text-green-700 text-sm">{imageFile.name}</span>
-          )}
+    <section className="max-w-5xl mx-auto py-10 px-4">
+      <h2 className="text-3xl font-bold mb-6 text-green-700 text-center">
+        Admin Panel
+      </h2>
+      {/* Modal for editing */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl"
+              onClick={() => {
+                setShowModal(false);
+                setEditingId(null);
+                setForm({
+                  title: "",
+                  description: "",
+                  category: "group",
+                  price: "",
+                  duration: "",
+                  image: "",
+                });
+                setImageFile(null);
+                setEditDates([]);
+                setEditDateInput("");
+                setEditDateId(null);
+              }}
+              title="Close"
+            >
+              &times;
+            </button>
+            <h3 className="text-2xl font-bold mb-4 text-green-700">
+              {editingId ? "Edit Tour" : "Add Tour"}
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input
+                name="title"
+                placeholder="Title"
+                className="w-full p-2 border rounded"
+                value={form.title}
+                onChange={handleChange}
+                required
+              />
+              <input
+                name="price"
+                type="number"
+                step="0.01"
+                placeholder="Price"
+                className="w-full p-2 border rounded"
+                value={form.price}
+                onChange={handleChange}
+                required
+              />
+              <input
+                name="duration"
+                placeholder="Duration"
+                className="w-full p-2 border rounded"
+                value={form.duration}
+                onChange={handleChange}
+                required
+              />
+              <select
+                name="category"
+                className="w-full p-2 border rounded"
+                value={form.category}
+                onChange={handleChange}
+                required
+              >
+                <option value="group">Group</option>
+                <option value="individual">Individual</option>
+              </select>
+              <textarea
+                name="description"
+                placeholder="Description"
+                className="w-full p-2 border rounded"
+                value={form.description}
+                onChange={handleChange}
+                required
+              />
+              <input
+                name="image"
+                placeholder="Image URL"
+                className="w-full p-2 border rounded"
+                value={form.image || ""}
+                onChange={(e) => setForm({ ...form, image: e.target.value })}
+              />
+              <label className="block">
+                <span className="text-gray-700">Or choose a photo:</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="block w-full text-sm text-gray-500"
+                  onChange={handleImageChange}
+                />
+              </label>
+              {imageFile && (
+                <span className="text-green-700 text-sm">{imageFile.name}</span>
+              )}
+              <div className="flex gap-4 mt-2">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded border"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingId(null);
+                    setForm({
+                      title: "",
+                      description: "",
+                      category: "group",
+                      price: "",
+                      duration: "",
+                      image: "",
+                    });
+                    setImageFile(null);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+            {/* Date management in modal */}
+            {editingId && (
+              <div className="mt-6">
+                <h4 className="font-semibold mb-2">Tour Dates</h4>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="date"
+                    value={editDateInput}
+                    onChange={(e) => setEditDateInput(e.target.value)}
+                    className="border rounded p-1"
+                  />
+                  <button
+                    className="bg-green-600 text-white px-2 py-1 rounded"
+                    onClick={handleSaveDate}
+                    type="button"
+                  >
+                    {editDateId ? "Update Date" : "Add Date"}
+                  </button>
+                  {editDateId && (
+                    <button
+                      className="px-2 py-1 rounded border"
+                      onClick={() => {
+                        setEditDateInput("");
+                        setEditDateId(null);
+                      }}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+                <ul className="mt-2 text-sm text-gray-700">
+                  {editDates.map((d) => (
+                    <li key={d.id} className="flex items-center gap-2">
+                      <span>{d.date.slice(0, 10)}</span>
+                      <button
+                        className="text-blue-600 underline text-xs"
+                        onClick={() => handleEditDateClick(d)}
+                        type="button"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-600 underline text-xs"
+                        onClick={() => handleDeleteDate(d.id)}
+                        type="button"
+                      >
+                        Delete
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          {editingId ? "Update Tour" : "Add Tour"}
-        </button>
-        {editingId && (
-          <button
-            type="button"
-            className="ml-2 px-4 py-2 rounded border"
-            onClick={() => {
-              setEditingId(null);
-              setForm({
-                title: "",
-                description: "",
-                category: "group",
-                price: "",
-                duration: "",
-                image: "",
-              });
-              setImageFile(null);
-            }}
-          >
-            Cancel
-          </button>
-        )}
-      </form>
-      <h3 className="text-2xl font-semibold mb-4">All Tours</h3>
-      <div className="space-y-4">
+      )}
+      {/* List of tours */}
+      <h3 className="text-2xl font-semibold mb-4 text-center">All Tours</h3>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {tours.map((tour) => (
           <div
             key={tour.id}
-            className="bg-white p-4 rounded shadow flex flex-col md:flex-row md:items-center md:justify-between"
+            className="bg-white p-4 rounded-xl shadow flex flex-col items-center"
           >
-            <div>
-              <div className="font-bold">{tour.title}</div>
-              <div className="text-gray-700">{tour.description}</div>
-              <div className="text-sm text-gray-500">
+            {tour.image && (
+              <img
+                src={tour.image}
+                alt={tour.title}
+                className="w-full h-40 object-cover rounded mb-3"
+                style={{ maxWidth: "320px" }}
+              />
+            )}
+            <div className="w-full">
+              <div className="font-bold text-lg mb-1 text-green-800">
+                {tour.title}
+              </div>
+              <div className="text-gray-700 mb-1">{tour.description}</div>
+              <div className="text-sm text-gray-500 mb-2">
                 {tour.category} | {tour.duration} | {tour.price} €
               </div>
             </div>
-            <div className="mt-2 md:mt-0 flex gap-2">
+            <div className="flex gap-2 mt-4">
               <button
                 className="px-3 py-1 bg-blue-600 text-white rounded"
                 onClick={() => handleEdit(tour)}
