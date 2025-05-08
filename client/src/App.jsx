@@ -7,6 +7,7 @@ import NotFound from "./components/NotFound";
 import ToursPage from "./pages/ToursPage";
 import AdminPanel from "./pages/AdminPanel";
 import TourDetails from "./pages/TourDetails";
+import AccountSettings from "./pages/AccountSettings";
 
 // Helper to check admin
 const isAdmin = () => {
@@ -38,6 +39,7 @@ function App() {
           <Route path="/register" element={<RegisterLogin />} />
           <Route path="/tours" element={<ToursPage />} />
           <Route path="/tours/:id" element={<TourDetails />} />
+          <Route path="/account" element={<AccountSettings />} />
           <Route
             path="/admin"
             element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}

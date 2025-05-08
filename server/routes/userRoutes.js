@@ -2,14 +2,21 @@ const express = require("express");
 const userController = require("../controllers/userController");
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
+const authMiddleware = require("../middleware/auth.js");
+const bcrypt = require("bcrypt"); // Make sure you have bcrypt installed
 
 const router = express.Router();
 
 const setRoutes = (app) => {
   // User CRUD
   router.post("/users", userController.createUser);
+
+  // Place these BEFORE /users/:id
+  router.get("/users/me", authMiddleware, userController.getMe);
+  router.put("/users/me", authMiddleware, userController.updateMe);
+
+  // Now the generic id route
   router.get("/users/:id", userController.getUser);
-  router.get("/users", userController.getAllUsers);
   router.put("/users/:id", userController.updateUser);
   router.delete("/users/:id", userController.deleteUser);
 
@@ -17,16 +24,16 @@ const setRoutes = (app) => {
   router.post("/register", async (req, res) => {
     const { name, email, password } = req.body;
     try {
+      const hashedPassword = await bcrypt.hash(password, 10);
       const result = await pool.query(
         "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role",
-        [name, email, password, "user"]
+        [name, email, hashedPassword, "user"]
       );
       res
         .status(201)
         .json({ message: "Registration successful!", user: result.rows[0] });
     } catch (error) {
       if (error.code === "23505") {
-        // unique_violation
         res.status(400).json({ message: "Email already exists" });
       } else {
         res.status(400).json({ message: error.message });
@@ -39,13 +46,17 @@ const setRoutes = (app) => {
     const { email, password } = req.body;
     try {
       const result = await pool.query(
-        "SELECT id, name, email, role FROM users WHERE email = $1 AND password = $2",
-        [email, password]
+        "SELECT id, name, email, role, password FROM users WHERE email = $1",
+        [email]
       );
       if (result.rows.length === 0) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       const user = result.rows[0];
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
       // Create JWT token
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
@@ -54,13 +65,24 @@ const setRoutes = (app) => {
       );
       res.status(200).json({
         message: "Login successful!",
-        user,
-        token, // <-- return the token!
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        token,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   });
+
+  // Get current user info
+  router.get("/me", authMiddleware, userController.getMe);
+
+  // Update current user info
+  router.put("/me", authMiddleware, userController.updateMe);
 
   app.use("/api", router);
 };

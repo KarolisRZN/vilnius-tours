@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const bcrypt = require("bcrypt");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -70,6 +71,49 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(204).send();
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// Get current user
+exports.getMe = async (req, res) => {
+  const userId = req.user.id;
+  const result = await pool.query(
+    "SELECT id, name, email FROM users WHERE id = $1",
+    [userId]
+  );
+  res.json(result.rows[0]);
+};
+
+// Update current user
+exports.updateMe = async (req, res) => {
+  const userId = req.user.id;
+  const { name, email, password } = req.body;
+  try {
+    // Check if email is used by another user
+    const emailCheck = await pool.query(
+      "SELECT id FROM users WHERE email = $1 AND id != $2",
+      [email, userId]
+    );
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await pool.query(
+        "UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4",
+        [name, email, hashedPassword, userId]
+      );
+    } else {
+      await pool.query("UPDATE users SET name = $1, email = $2 WHERE id = $3", [
+        name,
+        email,
+        userId,
+      ]);
+    }
+    res.json({ message: "Profile updated" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

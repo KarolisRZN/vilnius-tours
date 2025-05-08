@@ -49,29 +49,17 @@ function RegisterLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setErrors({});
     setSuccess("");
 
-    if (!validate()) return;
+    const url = tab === "login" ? "/api/login" : "/api/register";
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      ...(tab === "register" && { name: formData.name }),
+    };
 
-    const url =
-      tab === "login"
-        ? "http://localhost:5000/api/login"
-        : "http://localhost:5000/api/register";
-
-    const payload =
-      tab === "login"
-        ? {
-            email: formData.email,
-            password: formData.password,
-          }
-        : {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-          };
-
-    setLoading(true);
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -87,14 +75,15 @@ function RegisterLogin() {
           tab === "login" ? "Login successful!" : "Registration successful!"
         );
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token); // Save token if you use it
         window.dispatchEvent(new Event("storage"));
         setTimeout(() => navigate("/"), 1000);
       } else {
         setErrors({ server: data.message || "Submission failed." });
       }
-    } catch {
+    } catch (err) {
       setLoading(false);
-      setErrors({ server: "Network error. Please try again." });
+      setErrors({ server: "Server error. Please try again." });
     }
   };
 
