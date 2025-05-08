@@ -9,6 +9,12 @@ function decodeToken(token) {
   }
 }
 
+function addOneDay(dateStr) {
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
 function AdminPanel() {
   const [tours, setTours] = useState([]);
   const [form, setForm] = useState({
@@ -149,7 +155,7 @@ function AdminPanel() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ date: editDateInput }),
+        body: JSON.stringify({ date: addOneDay(editDateInput) }),
       });
       if (res.ok) {
         setEditDateId(null);
@@ -160,13 +166,16 @@ function AdminPanel() {
       }
     } else {
       // Add new date
-      const res = await fetch(`/api/tours/${editingId}/dates`, {
+      const res = await fetch("/api/tour-dates", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ date: editDateInput }),
+        body: JSON.stringify({
+          tour_id: editingId,
+          date: addOneDay(editDateInput),
+        }),
       });
       if (res.ok) {
         setEditDateInput("");
