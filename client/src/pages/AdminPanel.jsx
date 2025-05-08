@@ -17,14 +17,18 @@ function AdminPanel() {
     category: "group",
     price: "",
     duration: "",
-      image: "",
+    image: "",
   });
   const [editingId, setEditingId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [datesByTour, setDatesByTour] = useState({});
 
   // Always get token from localStorage
-  const token = localStorage.getItem("token") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTExNDksImV4cCI6MTc0NjY5NDc0OX0.H_NVFNXDhns8jtVPc-xdwIrR6JsorOb2Hz9hMc21NC8";
+  const token =
+    localStorage.getItem("token") ||
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTI4MDMsImV4cCI6MTc0NjY5NjQwM30.n7QK9IcBYnTNdspDnuLnHVVxcvLa2k6nuPjGYmZD5pM.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTExNDksImV4cCI6MTc0NjY5NDc0OX0.H_NVFNXDhns8jtVPc-xdwIrR6JsorOb2Hz9hMc21NC8";
 
   // Check admin role when token changes
   useEffect(() => {
@@ -47,6 +51,13 @@ function AdminPanel() {
   useEffect(() => {
     fetchTours();
   }, []);
+
+  // Fetch dates for a tour
+  const fetchTourDates = async (tourId) => {
+    const res = await fetch(`/api/tours/${tourId}/dates`);
+    const dates = await res.json();
+    setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
+  };
 
   // Handle form input
   const handleChange = (e) => {
@@ -128,6 +139,25 @@ function AdminPanel() {
     });
     if (res.ok) fetchTours();
     else alert("Delete failed");
+  };
+
+  // Add a date to a tour
+  const handleAddDate = async (tourId) => {
+    if (!selectedDate) return;
+    const res = await fetch(`/api/tours/${tourId}/dates`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ date: selectedDate }),
+    });
+    if (res.ok) {
+      setSelectedDate("");
+      fetchTourDates(tourId);
+    } else {
+      alert("Failed to add date");
+    }
   };
 
   if (!isAdmin) {

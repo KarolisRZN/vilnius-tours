@@ -6,6 +6,8 @@ const {
   createTour,
   updateTour,
   deleteTour,
+  addTourDate,
+  getTourDates,
 } = require("../controllers/toursController");
 const { authenticateJWT, isAdmin } = require("../middleware/auth");
 
@@ -15,5 +17,7 @@ router.get("/:id", getTourById);
 router.post("/", authenticateJWT, isAdmin, createTour);
 router.put("/:id", authenticateJWT, isAdmin, updateTour);
 router.delete("/:id", authenticateJWT, isAdmin, deleteTour);
+router.post("/:tourId/dates", authenticateJWT, isAdmin, addTourDate);
+router.get("/:tourId/dates", getTourDates);
 
 module.exports = router;

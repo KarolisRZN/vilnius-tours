@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 function ToursPage() {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDates, setSelectedDates] = useState({});
+  const [datesByTour, setDatesByTour] = useState({});
 
   useEffect(() => {
     fetch("/api/tours")
@@ -19,6 +21,49 @@ function ToursPage() {
       });
   }, []);
 
+  const handleAddDate = async (tourId) => {
+    const date = selectedDates[tourId];
+    if (!date) return;
+    const token = localStorage.getItem("token") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTM2MzQsImV4cCI6MTc0NjY5NzIzNH0.ejrmSE3KHUq5lVgiseMhNgfCAQ0QoO6BEhWaRQeN5co";
+    const res = await fetch(`/api/tours/${tourId}/dates`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ date }),
+    });
+    if (res.ok) {
+      setSelectedDates((prev) => ({ ...prev, [tourId]: "" }));
+      fetchTourDates(tourId);
+    } else {
+      alert("Failed to add date");
+    }
+  };
+
+  const fetchTourDates = async (tourId) => {
+    const res = await fetch(`/api/tours/${tourId}/dates`);
+    const dates = await res.json();
+    setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
+  };
+
+  // When the date input changes
+  const handleDateChange = (tourId, value) => {
+    setSelectedDates((prev) => ({ ...prev, [tourId]: value }));
+  };
+
+  function decodeToken(token) {
+    try {
+      const payload = token.split(".")[1];
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
+  }
+
+  const token = localStorage.getItem("token") || "";
+  const isAdmin = true;
+
   return (
     <section className="w-full bg-white py-10 px-4 flex flex-col items-center">
       <h2 className="text-3xl md:text-4xl font-bold mb-8 text-green-700 text-center">
@@ -33,34 +78,70 @@ function ToursPage() {
           {tours.map((tour) => (
             <div
               key={tour.id}
-              className="bg-gray-50 rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-center"
+              className="bg-white p-4 rounded shadow flex flex-col md:flex-row md:items-center md:justify-between"
             >
-              <h3 className="text-xl font-semibold mb-2 text-green-800 text-center">
-                {tour.title}
-              </h3>
-              <p className="text-gray-700 text-center mb-2">
-                {tour.description}
-              </p>
-              {tour.price && (
-                <p className="text-green-700 font-semibold mb-1">
-                  Price: {tour.price} €
+              <div className="flex-1 mb-4 md:mb-0">
+                <h3 className="text-xl font-semibold mb-2 text-green-800 text-center">
+                  {tour.title}
+                </h3>
+                <p className="text-gray-700 text-center mb-2">
+                  {tour.description}
                 </p>
-              )}
-              {tour.duration && (
-                <p className="text-gray-600 mb-1">Duration: {tour.duration}</p>
-              )}
-              {tour.category && (
-                <p className="text-gray-500 text-sm">
-                  Category: {tour.category}
-                </p>
-              )}
-              {tour.image && (
-                <img
-                  src={tour.image}
-                  alt={tour.title}
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-              )}
+                {tour.price && (
+                  <p className="text-green-700 font-semibold mb-1">
+                    Price: {tour.price} €
+                  </p>
+                )}
+                {tour.duration && (
+                  <p className="text-gray-600 mb-1">
+                    Duration: {tour.duration}
+                  </p>
+                )}
+                {tour.category && (
+                  <p className="text-gray-500 text-sm">
+                    Category: {tour.category}
+                  </p>
+                )}
+                {tour.image && (
+                  <img
+                    src={tour.image}
+                    alt={tour.title}
+                    className="w-full h-48 object-cover rounded-md mb-4"
+                  />
+                )}
+              </div>
+              <div>
+                {isAdmin && (
+                  <>
+                    <input
+                      type="date"
+                      value={selectedDates[tour.id] || ""}
+                      onChange={(e) =>
+                        handleDateChange(tour.id, e.target.value)
+                      }
+                      className="border rounded p-1 mr-2"
+                    />
+                    <button
+                      className="bg-green-600 text-white px-2 py-1 rounded"
+                      onClick={() => handleAddDate(tour.id)}
+                    >
+                      Add Date
+                    </button>
+                  </>
+                )}
+                <button
+                  className="ml-2 text-blue-600 underline"
+                  onClick={() => fetchTourDates(tour.id)}
+                >
+                  Show Dates
+                </button>
+                <ul className="mt-2 text-sm text-gray-700">
+                  {(datesByTour[tour.id] || []).map((d) => (
+                    <li key={d.id}>{d.date}</li>
+                  ))}
+                </ul>
+              </div>
+              {/* ...edit/delete buttons... */}
             </div>
           ))}
         </div>

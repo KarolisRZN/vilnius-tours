@@ -98,3 +98,33 @@ exports.deleteTour = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// Add a date to a tour
+exports.addTourDate = async (req, res) => {
+  const { tourId } = req.params;
+  const { date } = req.body;
+  if (!date) return res.status(400).json({ error: "Date is required" });
+  try {
+    const result = await pool.query(
+      "INSERT INTO tour_dates (tour_id, date) VALUES ($1, $2) RETURNING *",
+      [tourId, date]
+    );
+    res.status(201).json({ message: "Date added", date: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get dates for a tour
+exports.getTourDates = async (req, res) => {
+  const { tourId } = req.params;
+  try {
+    const result = await pool.query(
+      "SELECT * FROM tour_dates WHERE tour_id = $1 ORDER BY date",
+      [tourId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
