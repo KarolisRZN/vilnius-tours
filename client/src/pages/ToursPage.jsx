@@ -54,6 +54,13 @@ function ToursPage() {
                   Category: {tour.category}
                 </p>
               )}
+              {tour.image && (
+                <img
+                  src={tour.image}
+                  alt={tour.title}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+              )}
             </div>
           ))}
         </div>

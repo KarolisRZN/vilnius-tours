@@ -28,9 +28,9 @@ exports.getTourById = async (req, res) => {
 
 // Create a new tour
 exports.createTour = async (req, res) => {
-  const { title, description, category, price, duration, group_price } =
+  const { title, description, category, price, duration, group_price, image } =
     req.body;
-  const created_by = req.user.id; // Get admin ID from JWT
+  const created_by = req.user.id;
 
   // Validate required fields
   if (!title || !description || !category || price == null || !duration) {
@@ -39,9 +39,18 @@ exports.createTour = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO tours (title, description, category, price, duration, created_by, group_price)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [title, description, category, price, duration, created_by, group_price]
+      `INSERT INTO tours (title, description, category, price, duration, created_by, group_price, image)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [
+        title,
+        description,
+        category,
+        price,
+        duration,
+        created_by,
+        group_price,
+        image,
+      ]
     );
 
     res.status(201).json({ message: "Tour created", tour: result.rows[0] });
@@ -54,12 +63,12 @@ exports.createTour = async (req, res) => {
 // Update a tour
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
-  const { title, description, price } = req.body;
+  const { title, description, price, image } = req.body;
 
   try {
     const result = await pool.query(
-      "UPDATE tours SET title = $1, description = $2, price = $3 WHERE id = $4 RETURNING *",
-      [title, description, price, id]
+      "UPDATE tours SET title = $1, description = $2, price = $3, image = $4 WHERE id = $5 RETURNING *",
+      [title, description, price, image, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Tour not found" });
