@@ -7,20 +7,41 @@ function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const dropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
 
-  // Check login status on mount
+  // Check login status and role on mount
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    setIsLoggedIn(!!user);
+    const userStr = localStorage.getItem("user");
+    setIsLoggedIn(!!userStr);
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setIsAdmin(user.role === "admin"); // <-- fix here
+      } catch {
+        setIsAdmin(false);
+      }
+    } else {
+      setIsAdmin(false);
+    }
   }, []);
 
   // Listen for login/logout events from other tabs/windows
   useEffect(() => {
     const handleStorage = () => {
-      const user = localStorage.getItem("user");
-      setIsLoggedIn(!!user);
+      const userStr = localStorage.getItem("user");
+      setIsLoggedIn(!!userStr);
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          setIsAdmin(user.role === "admin"); // <-- and here
+        } catch {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
@@ -54,6 +75,7 @@ function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setIsAdmin(false);
     setMenuOpen(false);
     window.location.href = "/";
   };
@@ -115,6 +137,18 @@ function Navbar() {
                   <ul className="py-1">
                     <li>
                       <Link
+                        to="/tours"
+                        className="block px-4 py-2 text-gray-700 hover:bg-green-100"
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          setMenuOpen(false);
+                        }}
+                      >
+                        All Tours
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
                         to="/tours-groups"
                         className="block px-4 py-2 text-gray-700 hover:bg-green-100"
                         onClick={() => {
@@ -140,6 +174,16 @@ function Navbar() {
                   </ul>
                 </div>
               </li>
+              {isAdmin && (
+                <li>
+                  <Link
+                    to="/admin"
+                    className="py-2 px-4 rounded-md text-white bg-red-600 hover:bg-red-700 font-semibold transition"
+                  >
+                    AdminPanel
+                  </Link>
+                </li>
+              )}
               {!isLoggedIn ? (
                 <li>
                   <Link

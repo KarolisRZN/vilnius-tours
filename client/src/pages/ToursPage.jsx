@@ -49,6 +49,21 @@ function ToursPage() {
     setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
   };
 
+  const handleDeleteDate = async (tourId, dateId) => {
+    const token = localStorage.getItem("token") || "";
+    const res = await fetch(`/api/tour-dates/${dateId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      fetchTourDates(tourId);
+    } else {
+      alert("Failed to delete date");
+    }
+  };
+
   // When the date input changes
   const handleDateChange = (tourId, value) => {
     setSelectedDates((prev) => ({ ...prev, [tourId]: value }));
@@ -113,39 +128,22 @@ function ToursPage() {
                 )}
               </div>
               <div>
-                {isAdmin && (
-                  <>
-                    <input
-                      type="date"
-                      value={selectedDates[tour.id] || ""}
-                      onChange={(e) =>
-                        handleDateChange(tour.id, e.target.value)
-                      }
-                      className="border rounded p-1 mr-2"
-                    />
-                    <button
-                      className="bg-green-600 text-white px-2 py-1 rounded"
-                      onClick={() => handleAddDate(tour.id)}
-                    >
-                      Add Date
-                    </button>
-                  </>
-                )}
-                <button
-                  className="ml-2 text-blue-600 underline"
-                  onClick={() => fetchTourDates(tour.id)}
-                >
-                  Show Dates
-                </button>
                 <ul className="mt-2 text-sm text-gray-700">
                   {(datesByTour[tour.id] || []).map((d) => (
-                    <li key={d.id}>
+                    <li key={d.id} className="flex items-center">
                       {new Date(d.date).toLocaleDateString("en-CA")}
+                      {isAdmin && (
+                        <button
+                          className="ml-2 text-red-600 underline"
+                          onClick={() => handleDeleteDate(tour.id, d.id)}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>
               </div>
-              {/* ...edit/delete buttons... */}
             </div>
           ))}
         </div>
