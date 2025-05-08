@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const tourRoutes = require("./routes/toursRoutes");
 const setUserRoutes = require("./routes/userRoutes");
 const tourDatesRoutes = require("./routes/tourDatesRoutes");
+const walletRoutes = require("./routes/walletRoutes");
 const config = require("./config/config");
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json()); // Middleware for JSON body parsing
 
 app.use("/api/tours", tourRoutes);
 app.use("/api/tour-dates", tourDatesRoutes);
+app.use("/api/wallet", walletRoutes);
 setUserRoutes(app); // Register user CRUD routes
 
 app.listen(PORT, () => {

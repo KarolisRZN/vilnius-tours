@@ -210,6 +210,18 @@ function Navbar() {
                     <ul className="py-1">
                       <li>
                         <Link
+                          to="/wallet"
+                          className="block px-4 py-2 text-gray-700 hover:bg-green-100"
+                          tabIndex={0}
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                          }}
+                        >
+                          Wallet
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
                           to="/account"
                           className="block px-4 py-2 text-gray-700 hover:bg-green-100"
                           tabIndex={0}
