@@ -157,11 +157,12 @@ function AdminPanel() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ date: addOneDay(editDateInput) }),
+        body: JSON.stringify({ date: editDateInput, time }),
       });
       if (res.ok) {
         setEditDateId(null);
         setEditDateInput("");
+        setTime("");
         fetchEditDates(editingId);
       } else {
         alert("Failed to update date");
@@ -175,13 +176,14 @@ function AdminPanel() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          tour_id: editingId,
+          tour_id: editingId, // <-- add this!
           date: editDateInput,
           time,
         }),
       });
       if (res.ok) {
         setEditDateInput("");
+        setTime("");
         fetchEditDates(editingId);
       } else {
         alert("Failed to add date");
@@ -193,6 +195,7 @@ function AdminPanel() {
   const handleEditDateClick = (dateObj) => {
     setEditDateInput(dateObj.date.slice(0, 10));
     setEditDateId(dateObj.id);
+    setTime(dateObj.time ? dateObj.time.slice(0, 5) : "");
   };
 
   // Delete a date
@@ -243,6 +246,7 @@ function AdminPanel() {
                 setEditDates([]);
                 setEditDateInput("");
                 setEditDateId(null);
+                setTime("");
               }}
               title="Close"
             >
@@ -354,6 +358,13 @@ function AdminPanel() {
                     onChange={(e) => setEditDateInput(e.target.value)}
                     className="border rounded p-1"
                   />
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="border rounded p-1"
+                    placeholder="Time"
+                  />
                   <button
                     className="bg-green-600 text-white px-2 py-1 rounded"
                     onClick={handleSaveDate}
@@ -367,6 +378,7 @@ function AdminPanel() {
                       onClick={() => {
                         setEditDateInput("");
                         setEditDateId(null);
+                        setTime("");
                       }}
                       type="button"
                     >
@@ -377,10 +389,16 @@ function AdminPanel() {
                 <ul className="mt-2 text-sm text-gray-700">
                   {editDates.map((d) => (
                     <li key={d.id} className="flex items-center gap-2">
-                      <span>{d.date.slice(0, 10)}</span>
+                      <span>
+                        {new Date(d.date).toLocaleDateString()}{" "}
+                        {d.time ? d.time.slice(0, 5) : ""}
+                      </span>
                       <button
                         className="text-blue-600 underline text-xs"
-                        onClick={() => handleEditDateClick(d)}
+                        onClick={() => {
+                          handleEditDateClick(d);
+                          setTime(d.time ? d.time.slice(0, 5) : "");
+                        }}
                         type="button"
                       >
                         Edit
