@@ -37,9 +37,7 @@ function AdminPanel() {
   const [date, setDate] = useState(""); // New date for form
   const [time, setTime] = useState(""); // New time for form
 
-  const token =
-    localStorage.getItem("token") ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTM2MzQsImV4cCI6MTc0NjY5NzIzNH0.ejrmSE3KHUq5lVgiseMhNgfCAQ0QoO6BEhWaRQeN5co";
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njc4NjI3MCwiZXhwIjoxNzQ2Nzg5ODcwfQ.h7WKWey0Z9NXEBx_fJ9km1X4kBfPYEcnkXlzXdt2d3c";
 
   useEffect(() => {
     if (token) {
@@ -207,6 +205,30 @@ function AdminPanel() {
     });
     if (res.ok) fetchEditDates(editingId);
     else alert("Delete failed");
+  };
+
+  const handleDelete = async (tourId) => {
+    if (!window.confirm("Are you sure you want to delete this tour?")) return;
+    const res = await fetch(`/api/tours/${tourId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      fetchTours();
+    } else {
+      alert("Failed to delete tour");
+    }
+  };
+
+  const fetchTourById = async (id) => {
+    const res = await fetch(`/api/tours/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.json();
   };
 
   if (!isAdmin) {
