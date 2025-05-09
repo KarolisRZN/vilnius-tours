@@ -176,7 +176,8 @@ function AdminPanel() {
         },
         body: JSON.stringify({
           tour_id: editingId,
-          date: addOneDay(editDateInput),
+          date: editDateInput,
+          time,
         }),
       });
       if (res.ok) {

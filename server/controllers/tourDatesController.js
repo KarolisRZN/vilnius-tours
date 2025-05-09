@@ -24,12 +24,11 @@ exports.getTourDateById = async (req, res) => {
 };
 
 exports.createTourDate = async (req, res) => {
-  const { tour_id, date } = req.body;
+  const { tour_id, date, time } = req.body;
   try {
-    const formattedDate = dateHandler.formatDate(date);
     const result = await pool.query(
-      "INSERT INTO tour_dates (tour_id, date) VALUES ($1, $2) RETURNING *",
-      [tour_id, formattedDate]
+      "INSERT INTO tour_dates (tour_id, date, time) VALUES ($1, $2, $3) RETURNING *",
+      [tour_id, date, time]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -38,12 +37,11 @@ exports.createTourDate = async (req, res) => {
 };
 
 exports.updateTourDate = async (req, res) => {
-  const { date } = req.body;
+  const { date, time } = req.body;
   try {
-    const formattedDate = dateHandler.formatDate(date);
     const result = await pool.query(
-      "UPDATE tour_dates SET date = $1 WHERE id = $2 RETURNING *",
-      [formattedDate, req.params.id]
+      "UPDATE tour_dates SET date = $1, time = $2 WHERE id = $3 RETURNING *",
+      [date, time, req.params.id]
     );
     if (result.rows.length === 0)
       return res.status(404).json({ message: "Not found" });
