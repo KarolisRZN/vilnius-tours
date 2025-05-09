@@ -10,6 +10,7 @@ import TourDetails from "./pages/TourDetails";
 import AccountSettings from "./pages/AccountSettings";
 import Wallet from "./pages/Wallet";
 import AdminBookingsTable from "./pages/AdminBookingTable";
+import MyBookings from "./pages/MyBookings";
 
 // Helper to check admin
 const isAdmin = () => {
@@ -44,6 +45,7 @@ function App() {
           <Route path="/account" element={<AccountSettings />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/admin-bookings" element={<AdminBookingsTable />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
           <Route
             path="/admin"
             element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}

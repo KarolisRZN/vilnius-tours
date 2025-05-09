@@ -222,6 +222,18 @@ function Navbar() {
                       </li>
                       <li>
                         <Link
+                          to="/my-bookings"
+                          className="block px-4 py-2 text-gray-700 hover:bg-green-100"
+                          tabIndex={0}
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                          }}
+                        >
+                          My Bookings
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
                           to="/account"
                           className="block px-4 py-2 text-gray-700 hover:bg-green-100"
                           tabIndex={0}
