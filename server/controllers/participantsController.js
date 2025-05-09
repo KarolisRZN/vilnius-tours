@@ -138,3 +138,31 @@ exports.deleteParticipant = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getParticipants = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT p.*, u.name as user_name, t.title as tour_title, d.date as tour_date, d.time as tour_time
+       FROM participants p
+       JOIN users u ON p.user_id = u.id
+       JOIN tours t ON p.tour_id = t.id
+       JOIN tour_dates d ON p.date_id = d.id
+       ORDER BY p.status, d.date`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllBookings = async (req, res) => {
+  const result = await pool.query(`
+    SELECT p.*, u.name as user_name, t.title as tour_title, d.date as tour_date, d.time as tour_time
+    FROM participants p
+    JOIN users u ON p.user_id = u.id
+    JOIN tours t ON p.tour_id = t.id
+    JOIN tour_dates d ON p.date_id = d.id
+    ORDER BY p.status, d.date
+  `);
+  res.json(result.rows);
+};

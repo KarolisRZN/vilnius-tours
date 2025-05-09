@@ -77,9 +77,7 @@ export default function AdminBookingsTable() {
                 <td className="px-4 py-2">
                   {new Date(b.tour_date).toLocaleDateString("ru-RU")}
                 </td>
-                <td className="px-4 py-2">
-                  {(b.tour_time || b.time || "").slice(0, 5)}
-                </td>
+                <td className="px-4 py-2">{(b.tour_time || "").slice(0, 5)}</td>
                 <td className="px-4 py-2">{b.user_name}</td>
                 <td className="px-4 py-2">{b.status}</td>
                 <td className="px-4 py-2 space-x-2">

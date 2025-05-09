@@ -13,7 +13,7 @@ router.get("/", authMiddleware, async (req, res) => {
   if (req.user.role !== "admin")
     return res.status(403).json({ message: "Forbidden" });
   const result = await pool.query(
-    `SELECT p.*, u.name as user_name, t.title as tour_title, d.date as tour_date
+    `SELECT p.*, u.name as user_name, t.title as tour_title, d.date as tour_date, d.time as tour_time
      FROM participants p
      JOIN users u ON p.user_id = u.id
      JOIN tours t ON p.tour_id = t.id
