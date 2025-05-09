@@ -8,8 +8,10 @@ export default function TourDetails() {
   const [selectedDate, setSelectedDate] = useState("");
   const [message, setMessage] = useState("");
   const [bookingStatus, setBookingStatus] = useState(null);
+  const [note, setNote] = useState("");
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     fetch(`/api/tours/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -23,7 +25,10 @@ export default function TourDetails() {
     const token = localStorage.getItem("token");
     if (!token || !selectedDate) return;
     fetch(`/api/participants/my?tour_id=${id}&date_id=${selectedDate}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -45,6 +50,7 @@ export default function TourDetails() {
       body: JSON.stringify({
         tour_id: tour.id,
         date_id: selectedDate,
+        note, // add any extra fields here
       }),
     });
     const data = await res.json();
@@ -79,19 +85,27 @@ export default function TourDetails() {
       {tour.dates && tour.dates.length > 0 && (
         <div className="mt-6">
           <label className="block mb-2 font-semibold">Select Date:</label>
-          <select
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="border rounded p-2 mb-2"
-          >
-            <option value="">Choose a date & time</option>
+          <div className="flex flex-col gap-2 mb-2">
             {tour.dates.map((date) => (
-              <option key={date.id} value={date.id}>
+              <label key={date.id} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="date"
+                  value={date.id}
+                  checked={selectedDate === String(date.id)}
+                  onChange={() => setSelectedDate(String(date.id))}
+                />
                 {new Date(date.date).toLocaleDateString()}{" "}
                 {date.time ? date.time.slice(0, 5) : ""}
-              </option>
+              </label>
             ))}
-          </select>
+          </div>
+          <textarea
+            className="border rounded p-2 mb-2 w-full"
+            placeholder="Notes (optional)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
           <button
             className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
             disabled={!selectedDate || bookingStatus === "Pending"}

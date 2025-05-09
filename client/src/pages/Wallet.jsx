@@ -1,24 +1,38 @@
 import { useEffect, useState } from "react";
 
 export default function Wallet() {
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(null);
   const [addValue, setAddValue] = useState("");
   const [message, setMessage] = useState("");
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Fetch wallet balance
-    fetch("/api/wallet", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setAmount(data.amount || 0));
+    // Fetch wallet balance from the database
+    const fetchWallet = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/wallet/me/wallet", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setMessage(data.message || "Failed to fetch wallet");
+          setAmount(null);
+          return;
+        }
+        const data = await res.json();
+        setAmount(data.wallet);
+      } catch (err) {
+        setMessage("Network error");
+        setAmount(null);
+      }
+    };
+    fetchWallet();
   }, [token]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     setMessage("");
-    const res = await fetch("/api/wallet/add", {
+    const res = await fetch("http://localhost:5000/api/wallet/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +42,7 @@ export default function Wallet() {
     });
     const data = await res.json();
     if (res.ok) {
-      setAmount(data.amount);
+      setAmount(data.amount); // Note: backend returns { amount: ... }
       setAddValue("");
       setMessage("Money added!");
     } else {
@@ -40,7 +54,10 @@ export default function Wallet() {
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
       <h2 className="text-2xl font-bold mb-4 text-green-700">Wallet</h2>
       <div className="mb-4 text-lg">
-        Current Balance: <span className="font-bold">{amount} €</span>
+        Current Balance:{" "}
+        <span className="font-bold">
+          {amount !== null ? `${amount} €` : "—"}
+        </span>
       </div>
       <form onSubmit={handleAdd} className="flex gap-2">
         <input
@@ -59,7 +76,7 @@ export default function Wallet() {
           Add Money
         </button>
       </form>
-      {message && <div className="mt-2 text-green-700">{message}</div>}
+      {message && <div className="mt-2 text-red-700">{message}</div>}
     </div>
   );
 }

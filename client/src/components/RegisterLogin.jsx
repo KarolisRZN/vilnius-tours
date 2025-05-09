@@ -53,7 +53,10 @@ function RegisterLogin() {
     setErrors({});
     setSuccess("");
 
-    const url = tab === "login" ? "/api/login" : "/api/register";
+    const url =
+      tab === "login"
+        ? "http://localhost:5000/api/users/login"
+        : "http://localhost:5000/api/users/register";
     const payload = {
       email: formData.email,
       password: formData.password,

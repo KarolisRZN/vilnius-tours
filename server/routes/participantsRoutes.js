@@ -2,40 +2,10 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth.js");
 const pool = require("../config/db");
+const participantsController = require("../controllers/participantsController");
 
 // User books a tour
-router.post("/", authMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const { tour_id, date_id } = req.body;
-
-  // Get tour price
-  const tourRes = await pool.query("SELECT price FROM tours WHERE id = $1", [
-    tour_id,
-  ]);
-  if (tourRes.rows.length === 0)
-    return res.status(404).json({ message: "Tour not found" });
-  const price = tourRes.rows[0].price;
-
-  // Check wallet
-  const walletRes = await pool.query("SELECT wallet FROM users WHERE id = $1", [
-    userId,
-  ]);
-  if (walletRes.rows[0].wallet < price)
-    return res.status(400).json({ message: "Insufficient funds" });
-
-  // Deduct money
-  await pool.query("UPDATE users SET wallet = wallet - $1 WHERE id = $2", [
-    price,
-    userId,
-  ]);
-
-  // Create participant record
-  const partRes = await pool.query(
-    "INSERT INTO participants (user_id, tour_id, date_id, status) VALUES ($1, $2, $3, 'Pending') RETURNING *",
-    [userId, tour_id, date_id]
-  );
-  res.json({ status: partRes.rows[0].status });
-});
+router.post("/", authMiddleware, participantsController.createParticipant);
 
 // Get all bookings (admin)
 router.get("/", authMiddleware, async (req, res) => {
@@ -105,5 +75,11 @@ router.put("/:id/status", authMiddleware, async (req, res) => {
   ]);
   res.json({ message: "Status updated" });
 });
+
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  participantsController.updateStatus
+);
 
 module.exports = router;
