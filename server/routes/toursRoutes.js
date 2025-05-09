@@ -15,6 +15,7 @@ const {
 // Routes
 router.get("/", getAllTours);
 router.get("/:id", getTourById);
+router.post("/", authMiddleware, toursController.createTour);
 router.post("/tours", authMiddleware, toursController.createTour);
 router.put("/:id", authMiddleware, updateTour);
 router.delete("/:id", authMiddleware, deleteTour);
