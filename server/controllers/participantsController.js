@@ -2,16 +2,43 @@ const pool = require("../config/db");
 
 exports.createParticipant = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { tour_id, date_id } = req.body;
+    const { tour_id, date_id, note } = req.body;
+    const user_id = req.user.id;
 
-    // Always insert a valid status
-    await pool.query(
-      "INSERT INTO participants (user_id, tour_id, date_id, status) VALUES ($1, $2, $3, $4) RETURNING *",
-      [userId, tour_id, date_id, "Pending"]
+    // Get tour price
+    const tourResult = await pool.query(
+      "SELECT price FROM tours WHERE id = $1",
+      [tour_id]
     );
+    if (tourResult.rowCount === 0)
+      return res.status(404).json({ message: "Tour not found" });
 
-    res.status(201).json({ message: "Booking submitted!" });
+    const price = Number(tourResult.rows[0].price);
+
+    // Check user wallet
+    const userResult = await pool.query(
+      "SELECT wallet FROM users WHERE id = $1",
+      [user_id]
+    );
+    if (userResult.rowCount === 0)
+      return res.status(404).json({ message: "User not found" });
+
+    const wallet = Number(userResult.rows[0].wallet);
+    if (wallet < price)
+      return res.status(400).json({ message: "Insufficient funds" });
+
+    // Deduct price
+    await pool.query("UPDATE users SET wallet = wallet - $1 WHERE id = $2", [
+      price,
+      user_id,
+    ]);
+
+    // Create booking with status "Pending"
+    const result = await pool.query(
+      "INSERT INTO participants (user_id, tour_id, date_id, status) VALUES ($1, $2, $3, $4) RETURNING *",
+      [user_id, tour_id, date_id, "Pending"]
+    );
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -63,10 +90,10 @@ exports.updateStatus = async (req, res) => {
 
       // Deduct price
       console.log("Deducting", price, "from user", participant.user_id);
-      await pool.query(
-        "UPDATE users SET wallet = wallet - $1 WHERE id = $2",
-        [price, participant.user_id]
-      );
+      await pool.query("UPDATE users SET wallet = wallet - $1 WHERE id = $2", [
+        price,
+        participant.user_id,
+      ]);
       console.log("Deducted!");
     }
 

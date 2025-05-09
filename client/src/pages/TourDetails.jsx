@@ -8,7 +8,6 @@ export default function TourDetails() {
   const [selectedDate, setSelectedDate] = useState("");
   const [message, setMessage] = useState("");
   const [bookingStatus, setBookingStatus] = useState(null);
-  const [note, setNote] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -50,7 +49,6 @@ export default function TourDetails() {
       body: JSON.stringify({
         tour_id: tour.id,
         date_id: selectedDate,
-        note, // add any extra fields here
       }),
     });
     const data = await res.json();
@@ -100,12 +98,6 @@ export default function TourDetails() {
               </label>
             ))}
           </div>
-          <textarea
-            className="border rounded p-2 mb-2 w-full"
-            placeholder="Notes (optional)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
           <button
             className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
             disabled={!selectedDate || bookingStatus === "Pending"}
