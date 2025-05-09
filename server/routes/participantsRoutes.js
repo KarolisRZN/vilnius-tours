@@ -65,4 +65,7 @@ router.patch(
   participantsController.updateStatus
 );
 
+// Delete booking by id (admin)
+router.delete("/:id", authMiddleware, participantsController.deleteParticipant);
+
 module.exports = router;
