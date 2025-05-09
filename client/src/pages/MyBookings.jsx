@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const token = localStorage.getItem("token");
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   useEffect(() => {
     fetchBookings();
@@ -39,7 +40,7 @@ export default function MyBookings() {
           <div>Tour: {booking.tour_title}</div>
           <div>Date: {new Date(booking.tour_date).toLocaleDateString()}</div>
           <div>Status: {booking.status}</div>
-          {booking.status === "Pending" && (
+          {isAdmin && booking.status === "Pending" && (
             <>
               <button onClick={() => updateStatus(booking.id, "Accepted")}>
                 Accept
