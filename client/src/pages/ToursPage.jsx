@@ -1,33 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 
-function ToursPage() {
+export default function ToursPage() {
   const [tours, setTours] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDates, setSelectedDates] = useState({});
   const [datesByTour, setDatesByTour] = useState({});
+  const [selectedDates, setSelectedDates] = useState({});
+  const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token") || "";
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   useEffect(() => {
-    fetch("/api/tours")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Fetched tours:", data);
-        setTours(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching tours:", err);
-        setTours([]);
-        setLoading(false);
-      });
+    fetchTours();
   }, []);
+
+  const fetchTours = async () => {
+    setLoading(true);
+    const res = await fetch("/api/tours");
+    const data = await res.json();
+    setTours(data);
+    setLoading(false);
+    // Fetch dates for all tours
+    data.forEach((tour) => fetchTourDates(tour.id));
+  };
+
+  const fetchTourDates = async (tourId) => {
+    const res = await fetch(`/api/tours/${tourId}/dates`);
+    const dates = await res.json();
+    setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
+  };
+
+  const handleDateChange = (tourId, value) => {
+    setSelectedDates((prev) => ({ ...prev, [tourId]: value }));
+  };
 
   const handleAddDate = async (tourId) => {
     const date = selectedDates[tourId];
     if (!date) return;
-    const token =
-      localStorage.getItem("token") ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDY2OTM2MzQsImV4cCI6MTc0NjY5NzIzNH0.ejrmSE3KHUq5lVgiseMhNgfCAQ0QoO6BEhWaRQeN5co";
     const res = await fetch(`/api/tours/${tourId}/dates`, {
       method: "POST",
       headers: {
@@ -44,14 +52,7 @@ function ToursPage() {
     }
   };
 
-  const fetchTourDates = async (tourId) => {
-    const res = await fetch(`/api/tours/${tourId}/dates`);
-    const dates = await res.json();
-    setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
-  };
-
   const handleDeleteDate = async (tourId, dateId) => {
-    const token = localStorage.getItem("token") || "";
     const res = await fetch(`/api/tour-dates/${dateId}`, {
       method: "DELETE",
       headers: {
@@ -64,23 +65,6 @@ function ToursPage() {
       alert("Failed to delete date");
     }
   };
-
-  // When the date input changes
-  const handleDateChange = (tourId, value) => {
-    setSelectedDates((prev) => ({ ...prev, [tourId]: value }));
-  };
-
-  function decodeToken(token) {
-    try {
-      const payload = token.split(".")[1];
-      return JSON.parse(atob(payload));
-    } catch {
-      return null;
-    }
-  }
-
-  const token = localStorage.getItem("token") || "";
-  const isAdmin = true;
 
   return (
     <section className="w-full bg-white py-10 px-4 flex flex-col items-center">
@@ -96,56 +80,87 @@ function ToursPage() {
           {tours.map((tour) => (
             <div
               key={tour.id}
-              className="bg-white p-4 rounded shadow flex flex-col md:flex-row md:items-center md:justify-between"
+              className="bg-white p-6 rounded-2xl shadow flex flex-col"
             >
-              <div className="flex-1 mb-4 md:mb-0">
-                <h3 className="text-xl font-semibold mb-2 text-green-800 text-center">
-                  <Link to={`/tours/${tour.id}`} className="hover:underline">
-                    {tour.title}
-                  </Link>
-                </h3>
-                <p className="text-gray-700 text-center mb-2">
-                  {tour.description}
+              <Link
+                to={`/tours/${tour.id}`}
+                className="text-xl font-bold text-green-800 hover:underline mb-2 text-center"
+              >
+                {tour.title}
+              </Link>
+              <p className="text-gray-700 mb-2 text-center">
+                {tour.description}
+              </p>
+              {tour.price && (
+                <p className="text-green-700 font-semibold mb-1 text-center">
+                  Price: {tour.price} €
                 </p>
-                {tour.price && (
-                  <p className="text-green-700 font-semibold mb-1">
-                    Price: {tour.price} €
-                  </p>
-                )}
-                {tour.duration && (
-                  <p className="text-gray-600 mb-1">
-                    Duration: {tour.duration}
-                  </p>
-                )}
-                {tour.category && (
-                  <p className="text-gray-500 text-sm">
-                    Category: {tour.category}
-                  </p>
-                )}
-                {tour.image && (
-                  <img
-                    src={tour.image}
-                    alt={tour.title}
-                    className="w-full h-48 object-cover rounded-md mb-4"
-                  />
-                )}
-              </div>
-              <div>
-                <ul className="mt-2 text-sm text-gray-700">
-                  {(datesByTour[tour.id] || []).map((d) => (
-                    <li key={d.id} className="flex items-center">
-                      {new Date(d.date).toLocaleDateString("en-CA")}
-                      {isAdmin && (
-                        <button
-                          className="ml-2 text-red-600 underline"
-                          onClick={() => handleDeleteDate(tour.id, d.id)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </li>
-                  ))}
+              )}
+              {tour.duration && (
+                <p className="text-gray-600 mb-1 text-center">
+                  Duration: {tour.duration}
+                </p>
+              )}
+              {tour.category && (
+                <p className="text-gray-500 text-sm text-center mb-2">
+                  Category: {tour.category}
+                </p>
+              )}
+              {tour.image && (
+                <img
+                  src={tour.image}
+                  alt={tour.title}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+              )}
+
+              <div className="mt-2">
+                <div className="font-semibold mb-1">Tour Dates:</div>
+                <ul className="text-sm text-gray-700 mb-2">
+                  {(datesByTour[tour.id] || []).map((d) => {
+                    console.log(d);
+                    return (
+                      <li
+                        key={d.id}
+                        className="flex items-center justify-between mb-1"
+                      >
+                        <span>
+                          {new Date(d.date).toLocaleDateString("en-CA")}
+                          <span className="ml-2 text-gray-500">
+                            {(d.time || "").slice(0, 5)}
+                          </span>
+                        </span>
+                        {isAdmin && (
+                          <button
+                            className="ml-2 text-red-600 underline"
+                            onClick={() => handleDeleteDate(tour.id, d.id)}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
+                {console.log(datesByTour[tour.id])}
+                {isAdmin && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="date"
+                      className="border rounded px-2 py-1"
+                      value={selectedDates[tour.id] || ""}
+                      onChange={(e) =>
+                        handleDateChange(tour.id, e.target.value)
+                      }
+                    />
+                    <button
+                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                      onClick={() => handleAddDate(tour.id)}
+                    >
+                      Add Date
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -154,5 +169,3 @@ function ToursPage() {
     </section>
   );
 }
-
-export default ToursPage;

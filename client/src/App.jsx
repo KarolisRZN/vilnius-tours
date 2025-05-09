@@ -9,8 +9,7 @@ import AdminPanel from "./pages/AdminPanel";
 import TourDetails from "./pages/TourDetails";
 import AccountSettings from "./pages/AccountSettings";
 import Wallet from "./pages/Wallet";
-import AdminBookings from "./pages/AdminBookings";
-import MyBookings from "./pages/MyBookings";
+import AdminBookingsTable from "./pages/AdminBookingTable";
 
 // Helper to check admin
 const isAdmin = () => {
@@ -44,16 +43,10 @@ function App() {
           <Route path="/tours/:id" element={<TourDetails />} />
           <Route path="/account" element={<AccountSettings />} />
           <Route path="/wallet" element={<Wallet />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/admin-bookings" element={<AdminBookingsTable />} />
           <Route
             path="/admin"
             element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}
-          />
-          <Route
-            path="/admin/bookings"
-            element={
-              isAdmin() ? <AdminBookings /> : <Navigate to="/" replace />
-            }
           />
           <Route path="*" element={<NotFound />} />
         </Routes>

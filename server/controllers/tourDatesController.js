@@ -64,3 +64,16 @@ exports.deleteTourDate = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getTourDatesByTourId = async (req, res) => {
+  try {
+    const tourId = req.params.tourId;
+    const result = await pool.query(
+      "SELECT id, date, time FROM tour_dates WHERE tour_id = $1",
+      [tourId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

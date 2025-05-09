@@ -10,4 +10,7 @@ router.post("/", tourDatesController.createTourDate);
 router.put("/:id", tourDatesController.updateTourDate);
 router.delete("/:id", tourDatesController.deleteTourDate);
 
+// Get tour dates by tour ID
+router.get("/tours/:tourId/dates", tourDatesController.getTourDatesByTourId);
+
 module.exports = router;

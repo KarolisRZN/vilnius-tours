@@ -50,9 +50,9 @@ exports.updateStatus = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     const { id } = req.params;
     const { status } = req.body;
-    const allowed = ["Pending", "Accepted", "Declined", "Completed"];
-    if (!allowed.includes(status))
+    if (!["Accepted", "Declined", "Completed"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
+    }
 
     // Get participant info
     const participantResult = await pool.query(
@@ -105,5 +105,22 @@ exports.updateStatus = async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getMyBookings = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await pool.query(
+      `SELECT p.*, t.title as tour_title, d.date as tour_date, d.time as tour_time
+       FROM participants p
+       JOIN tours t ON p.tour_id = t.id
+       JOIN tour_dates d ON p.date_id = d.id
+       WHERE p.user_id = $1`,
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

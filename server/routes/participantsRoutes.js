@@ -24,24 +24,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Get all bookings for current user
-router.get("/my", authMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const { tour_id, date_id } = req.query;
-  let query = `SELECT p.*, t.title as tour_title, d.date as tour_date
-               FROM participants p
-               JOIN tours t ON p.tour_id = t.id
-               JOIN tour_dates d ON p.date_id = d.id
-               WHERE p.user_id = $1`;
-  let params = [userId];
-  if (tour_id && date_id) {
-    query += " AND p.tour_id = $2 AND p.date_id = $3";
-    params.push(tour_id, date_id);
-    const result = await pool.query(query, params);
-    return res.json(result.rows[0] || {});
-  }
-  const result = await pool.query(query, params);
-  res.json(result.rows);
-});
+router.get("/my", authMiddleware, participantsController.getMyBookings);
 
 // Update booking status (admin)
 router.put("/:id/status", authMiddleware, async (req, res) => {
