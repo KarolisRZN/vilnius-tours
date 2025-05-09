@@ -18,6 +18,22 @@ export default function MyBookings() {
       .catch((e) => setError(e.message));
   }, [token]);
 
+  const submitReview = (tour_id, rating, comment) => {
+    fetch("/api/reviews", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ tour_id, rating, comment }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to submit review");
+        return res.json();
+      })
+      .catch((e) => setError(e.message));
+  };
+
   return (
     <div className="max-w-4xl mx-auto mt-10 bg-white p-8 rounded-2xl shadow-2xl">
       <h2 className="text-3xl font-bold mb-6 text-green-700 text-center">
@@ -52,7 +68,7 @@ export default function MyBookings() {
         {bookings
           .filter((b) => b.status === "Completed")
           .map((b) => (
-            <ReviewForm key={b.id} tourId={b.tour_id} />
+            <ReviewForm key={b.id} tourId={b.tour_id} onSubmit={submitReview} />
           ))}
       </div>
     </div>

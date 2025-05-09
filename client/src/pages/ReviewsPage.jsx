@@ -32,8 +32,7 @@ export default function ReviewsPage() {
             </div>
             <div className="text-gray-700 mb-1">{r.comment}</div>
             <div className="text-gray-400 text-sm">
-              by {r.user_name} on{" "}
-              {new Date(r.created_at).toLocaleDateString("ru-RU")}
+              by {r.user_name} on {new Date(r.created_at).toLocaleDateString("ru-RU")}
             </div>
           </li>
         ))}

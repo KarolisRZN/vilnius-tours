@@ -1,29 +1,14 @@
 import { useState } from "react";
 
-export default function ReviewForm({ tourId, onReviewAdded }) {
+export default function ReviewForm({ tourId, onSubmit }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    const res = await fetch("/api/reviews", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ tour_id: tourId, rating, comment }),
-    });
-    if (!res.ok) {
-      setError("Failed to submit review");
-      return;
-    }
-    setRating(5);
-    setComment("");
-    if (onReviewAdded) onReviewAdded();
+    console.log("Review submit:", { tourId, rating, comment });
+    onSubmit(tourId, rating, comment);
   };
 
   return (

@@ -10,6 +10,7 @@ const tourDatesRoutes = require("./routes/tourDatesRoutes");
 const walletRoutes = require("./routes/walletRoutes");
 const participantsRoutes = require("./routes/participantsRoutes");
 const usersRoutes = require("./routes/userRoutes");
+const reviewsRoutes = require("./routes/reviewsRoutes");
 const config = require("./config/config");
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use("/api/tour-dates", tourDatesRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/participants", participantsRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/reviews", reviewsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
