@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router"; // Add this import at the top
 
 function decodeToken(token) {
   try {
@@ -37,8 +38,9 @@ function AdminPanel() {
   const [date, setDate] = useState(""); // New date for form
   const [time, setTime] = useState(""); // New time for form
 
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njc4NjI3MCwiZXhwIjoxNzQ2Nzg5ODcwfQ.h7WKWey0Z9NXEBx_fJ9km1X4kBfPYEcnkXlzXdt2d3c";
+  const token = localStorage.getItem("token");
+
+  const navigate = useNavigate(); // Add this line inside your component
 
   useEffect(() => {
     if (token) {
@@ -101,7 +103,9 @@ function AdminPanel() {
 
   const submitTour = async (imageUrl) => {
     const method = editingId ? "PUT" : "POST";
-    const url = editingId ? `/api/tours/${editingId}` : "/api/tours";
+    const url = editingId
+      ? `http://localhost:5000/api/tours/${editingId}`
+      : "http://localhost:5000/api/tours";
     const res = await fetch(url, {
       method,
       headers: {
@@ -248,28 +252,36 @@ function AdminPanel() {
       <h2 className="text-3xl font-bold mb-6 text-green-700 text-center">
         Admin Panel
       </h2>
-      <button
-        className="mb-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        onClick={() => {
-          setShowModal(true);
-          setEditingId(null);
-          setForm({
-            title: "",
-            description: "",
-            category: "group",
-            price: "",
-            duration: "",
-            image: "",
-          });
-          setImageFile(null);
-          setEditDates([]);
-          setEditDateInput("");
-          setEditDateId(null);
-          setTime("");
-        }}
-      >
-        Add Tour
-      </button>
+      <div className="flex gap-4 mb-6">
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={() => {
+            setShowModal(true);
+            setEditingId(null);
+            setForm({
+              title: "",
+              description: "",
+              category: "group",
+              price: "",
+              duration: "",
+              image: "",
+            });
+            setImageFile(null);
+            setEditDates([]);
+            setEditDateInput("");
+            setEditDateId(null);
+            setTime("");
+          }}
+        >
+          Add Tour
+        </button>
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => navigate("/admin/bookings")}
+        >
+          Booking
+        </button>
+      </div>
       {/* Modal for editing */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
