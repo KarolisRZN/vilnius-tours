@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ReviewForm from "../components/ReviewForm";
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -46,6 +47,13 @@ export default function MyBookings() {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-6">
+        {bookings
+          .filter((b) => b.status === "Completed")
+          .map((b) => (
+            <ReviewForm key={b.id} tourId={b.tour_id} />
+          ))}
       </div>
     </div>
   );
