@@ -1,16 +1,18 @@
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 
 export default function TourDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState("");
   const [message, setMessage] = useState("");
   const [bookingStatus, setBookingStatus] = useState(null);
 
+  const isLoggedIn = !!localStorage.getItem("token");
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
     fetch(`/api/tours/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -19,7 +21,6 @@ export default function TourDetails() {
       });
   }, [id]);
 
-  // Fetch user's booking for this tour/date
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token || !selectedDate) return;
@@ -98,13 +99,23 @@ export default function TourDetails() {
               </label>
             ))}
           </div>
-          <button
-            className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
-            disabled={!selectedDate || bookingStatus === "Pending"}
-            onClick={handleBook}
-          >
-            Book
-          </button>
+          {isLoggedIn ? (
+            <button
+              className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
+              disabled={!selectedDate || bookingStatus === "Pending"}
+              onClick={handleBook}
+            >
+              Book
+            </button>
+          ) : (
+            <button
+              className="ml-2 bg-blue-600 text-white px-4 py-2 rounded"
+              onClick={() => navigate("/register")}
+              disabled={!selectedDate}
+            >
+              Register to book
+            </button>
+          )}
         </div>
       )}
       {message && <div className="mt-4 text-green-700">{message}</div>}

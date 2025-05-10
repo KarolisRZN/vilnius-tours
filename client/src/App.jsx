@@ -14,6 +14,7 @@ import MyBookings from "./pages/MyBookings";
 import ReviewsPage from "./pages/ReviewsPage";
 import ToursGroups from "./pages/ToursGroups";
 import ToursIndividuals from "./pages/ToursIndividuals";
+import AboutUs from "./components/AboutUs";
 
 // Helper to check admin
 const isAdmin = () => {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/tours-groups" element={<ToursGroups />} />
           <Route path="/tours-individuals" element={<ToursIndividuals />} />
+          <Route path="/about" element={<AboutUs />} />
           <Route
             path="/admin"
             element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}
