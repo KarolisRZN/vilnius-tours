@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import TourCategoriesCards from "./TourCategoriesCards";
 
 const images = [
   "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Onos-Bernardinu-baznycia.jpg?quality=100.3021072110190",
@@ -22,6 +23,7 @@ function Home() {
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center bg-white overflow-hidden m-0 p-0">
+      {/* Carousel */}
       <div
         className="relative w-full"
         style={{ height: "540px", maxWidth: "100vw" }}
@@ -37,7 +39,7 @@ function Home() {
             style={{ top: 0, left: 0 }}
           />
         ))}
-        {/* Always dark overlay, stronger for permanent dimming */}
+        {/* Overlay for dimming */}
         <div className="absolute inset-0 bg-black/30 pointer-events-none z-20" />
         <div className="absolute inset-0 flex flex-col items-center justify-center z-30">
           <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg text-center">
@@ -49,6 +51,8 @@ function Home() {
           </p>
         </div>
       </div>
+      {/* Only one categories block below the carousel */}
+      <TourCategoriesCards />
     </div>
   );
 }
