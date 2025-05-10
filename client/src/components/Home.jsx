@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import TourCategoriesCards from "./TourCategoriesCards";
+import AvailableToursCards from "./AvailableToursCards";
 
 const images = [
   "https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Onos-Bernardinu-baznycia.jpg?quality=100.3021072110190",
@@ -53,6 +54,7 @@ function Home() {
       </div>
       {/* Only one categories block below the carousel */}
       <TourCategoriesCards />
+      <AvailableToursCards />
     </div>
   );
 }
