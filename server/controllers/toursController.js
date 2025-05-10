@@ -3,11 +3,17 @@ const pool = require("../config/db");
 // Get all tours
 exports.getAllTours = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM tours ORDER BY id DESC");
-    res.status(200).json(result.rows);
+    const { category } = req.query;
+    let query = "SELECT * FROM tours";
+    let params = [];
+    if (category) {
+      query += " WHERE category = $1";
+      params.push(category);
+    }
+    const result = await pool.query(query, params);
+    res.json(result.rows);
   } catch (error) {
-    console.error("Error getting tours:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 };
 
