@@ -8,25 +8,37 @@ export default function Footer() {
           <img
             src="https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Logo_vivid3-1.png?quality=100.3021072110190"
             alt="Vivid Vilnius Logo"
-            className="h-12"
+            className="h-10 md:h-12"
           />
-          <span className="font-bold text-xl">Vivid Vilnius</span>
+          <span className="font-bold text-lg md:text-xl">Vivid Vilnius</span>
         </div>
-        <nav className="flex flex-col md:flex-row gap-4 md:gap-8 text-center">
-          <Link to="/" className="hover:underline">
+        <nav className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-center">
+          <Link
+            to="/"
+            className="hover:underline px-2 py-1 rounded hover:bg-green-800 transition"
+          >
             Home
           </Link>
-          <Link to="/tours" className="hover:underline">
+          <Link
+            to="/tours"
+            className="hover:underline px-2 py-1 rounded hover:bg-green-800 transition"
+          >
             All Tours
           </Link>
-          <Link to="/about" className="hover:underline">
+          <Link
+            to="/about"
+            className="hover:underline px-2 py-1 rounded hover:bg-green-800 transition"
+          >
             About Us
           </Link>
-          <Link to="/reviews" className="hover:underline">
+          <Link
+            to="/reviews"
+            className="hover:underline px-2 py-1 rounded hover:bg-green-800 transition"
+          >
             Reviews
           </Link>
         </nav>
-        <div className="text-center text-sm text-green-100">
+        <div className="text-center text-xs md:text-sm text-green-100">
           &copy; {new Date().getFullYear()} Vivid Vilnius. All rights reserved.
         </div>
       </div>
