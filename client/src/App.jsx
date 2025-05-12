@@ -39,31 +39,33 @@ function App() {
   }, []);
 
   return (
-    <div className="bg-white min-h-screen">
-      <BrowserRouter>
+    <BrowserRouter>
+      <div className="min-h-screen flex flex-col">
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<RegisterLogin />} />
-          <Route path="/tours" element={<ToursPage />} />
-          <Route path="/tours/:id" element={<TourDetails />} />
-          <Route path="/account" element={<AccountSettings />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/admin-bookings" element={<AdminBookingsTable />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/reviews" element={<ReviewsPage />} />
-          <Route path="/tours-groups" element={<ToursGroups />} />
-          <Route path="/tours-individuals" element={<ToursIndividuals />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route
-            path="/admin"
-            element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<RegisterLogin />} />
+            <Route path="/tours" element={<ToursPage />} />
+            <Route path="/tours/:id" element={<TourDetails />} />
+            <Route path="/account" element={<AccountSettings />} />
+            <Route path="/wallet" element={<Wallet />} />
+            <Route path="/admin-bookings" element={<AdminBookingsTable />} />
+            <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/tours-groups" element={<ToursGroups />} />
+            <Route path="/tours-individuals" element={<ToursIndividuals />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route
+              path="/admin"
+              element={isAdmin() ? <AdminPanel /> : <Navigate to="/" replace />}
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
         <Footer />
-      </BrowserRouter>
-    </div>
+      </div>
+    </BrowserRouter>
   );
 }
 
