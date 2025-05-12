@@ -49,9 +49,15 @@ function RegisterLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrors({});
     setSuccess("");
+    
+    if (!validate()) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
 
     const url =
       tab === "login"
@@ -74,13 +80,16 @@ function RegisterLogin() {
       setLoading(false);
 
       if (res.ok) {
-        setSuccess(
-          tab === "login" ? "Login successful!" : "Registration successful!"
-        );
-        localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem("token", data.token); // Save token if you use it
-        window.dispatchEvent(new Event("storage"));
-        setTimeout(() => navigate("/"), 1000);
+        if (tab === "login") {
+          setSuccess("Login successful!");
+          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("token", data.token);
+          window.dispatchEvent(new Event("storage"));
+          setTimeout(() => navigate("/"), 1000);
+        } else {
+          setSuccess("Registration successful! Please log in.");
+          setTab("login");
+        }
       } else {
         setErrors({ server: data.message || "Submission failed." });
       }
