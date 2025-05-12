@@ -169,6 +169,14 @@ function Navbar() {
                   </ul>
                 </div>
               </li>
+              <li>
+                <Link
+                  to="/reviews"
+                  className="py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 font-semibold transition"
+                >
+                  All Reviews
+                </Link>
+              </li>
               {isAdmin && (
                 <li>
                   <Link
@@ -230,18 +238,6 @@ function Navbar() {
                           }}
                         >
                           My Bookings
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/reviews"
-                          className="block px-4 py-2 text-gray-700 hover:bg-green-100"
-                          tabIndex={0}
-                          onClick={() => {
-                            setUserDropdownOpen(false);
-                          }}
-                        >
-                          All Reviews
                         </Link>
                       </li>
                       <li>
