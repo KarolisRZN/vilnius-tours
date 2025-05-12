@@ -16,6 +16,7 @@ import ToursGroups from "./pages/ToursGroups";
 import ToursIndividuals from "./pages/ToursIndividuals";
 import AboutUs from "./components/AboutUs";
 import Footer from "./components/Footer";
+import BackToTop from "./components/BackToTop";
 
 // Helper to check admin
 const isAdmin = () => {
@@ -63,6 +64,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
+        <BackToTop />
         <Footer />
       </div>
     </BrowserRouter>
