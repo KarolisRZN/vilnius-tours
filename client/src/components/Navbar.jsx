@@ -78,21 +78,46 @@ function Navbar() {
   return (
     <>
       <nav className="fixed top-0 left-0 w-full z-50 bg-gray-200 border-b border-gray-300">
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
           <Link
             to="/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img
               src="https://www.vividvilnius.lt/en/wp-content/uploads/sites/2/2016/04/Logo_vivid3-1.png?quality=100.3021072110190"
-              className="h-16"
+              className="h-12"
               alt="Logo"
             />
+            <span className="font-bold text-xl text-green-900">
+              Vivid Vilnius
+            </span>
           </Link>
 
-          {/* All buttons on the right */}
-          <div className="flex items-center space-x-2 ml-auto">
-            {/* Desktop menu */}
+          {/* Burger button for mobile */}
+          <button
+            className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded focus:outline-none bg-green-600 hover:bg-green-700 transition ml-auto"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+          >
+            <span
+              className={`block h-0.5 w-6 bg-white transition-transform duration-300 ${
+                menuOpen ? "rotate-45 translate-y-2" : ""
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-white my-1 transition-all duration-300 ${
+                menuOpen ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-white transition-transform duration-300 ${
+                menuOpen ? "-rotate-45 -translate-y-2" : ""
+              }`}
+            />
+          </button>
+
+          {/* Desktop menu */}
+          <div className="hidden md:flex items-center space-x-2 ml-auto">
             <ul className="hidden md:flex items-center space-x-2">
               <li>
                 <Link
@@ -273,7 +298,138 @@ function Navbar() {
           </div>
         </div>
       </nav>
-      <div className="pt-24" />
+
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
+          menuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        style={{ background: menuOpen ? "rgba(0,0,0,0.4)" : "transparent" }}
+        onClick={() => setMenuOpen(false)}
+      >
+        <nav
+          className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg p-6 transform transition-transform duration-300 ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ul className="flex flex-col gap-4 pt-20">
+            <li>
+              <Link
+                to="/about"
+                className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/tours"
+                className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                All Tours
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/tours-groups"
+                className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                Tours for Groups
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/tours-individuals"
+                className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                Tours for Individuals
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/reviews"
+                className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                All Reviews
+              </Link>
+            </li>
+            {isAdmin && (
+              <li>
+                <Link
+                  to="/admin"
+                  className="block py-2 px-4 rounded text-red-700 font-semibold hover:bg-red-100"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  AdminPanel
+                </Link>
+              </li>
+            )}
+            {!isLoggedIn ? (
+              <li>
+                <Link
+                  to="/register"
+                  className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <Link
+                    to="/wallet"
+                    className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Wallet
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/my-bookings"
+                    className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    My Bookings
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/account"
+                    className="block py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Account Settings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    className="block w-full text-left py-2 px-4 rounded text-green-700 font-semibold hover:bg-green-100"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+      </div>
+
+      <div className="pt-20" />
     </>
   );
 }
