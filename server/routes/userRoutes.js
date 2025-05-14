@@ -3,14 +3,13 @@ const userController = require("../controllers/userController");
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/auth.js");
-const bcrypt = require("bcrypt"); // Make sure you have bcrypt installed
+const bcrypt = require("bcrypt");
 
 const router = express.Router();
 
 // User CRUD
 router.post("/users", userController.createUser);
 
-// Place these BEFORE /users/:id
 router.get("/users/me", authMiddleware, userController.getMe);
 router.put("/users/me", authMiddleware, userController.updateMe);
 

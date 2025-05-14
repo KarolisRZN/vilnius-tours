@@ -18,7 +18,7 @@ import AboutUs from "./components/AboutUs";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 
-// Helper to check admin
+// helper to check admin
 const isAdmin = () => {
   const userStr = localStorage.getItem("user");
   if (!userStr) return false;

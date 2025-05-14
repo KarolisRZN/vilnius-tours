@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const toursController = require("../controllers/toursController");
-const authMiddleware = require("../middleware/auth.js"); // <-- NO curly braces
+const authMiddleware = require("../middleware/auth.js");
 
 const {
   getAllTours,

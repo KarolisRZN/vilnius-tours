@@ -7,7 +7,6 @@ export default function AdminBookingsTable() {
 
   useEffect(() => {
     fetchBookings();
-    // eslint-disable-next-line
   }, []);
 
   const fetchBookings = async () => {

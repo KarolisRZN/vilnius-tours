@@ -26,8 +26,8 @@ app.use(
 );
 app.use(morgan("dev"));
 app.use(cookieParser());
-app.use(express.json({ limit: "10mb" })); // Middleware for JSON body parsing
-app.use(bodyParser.json({ limit: "10mb" })); // Middleware for JSON body parsing
+app.use(express.json({ limit: "10mb" }));
+app.use(bodyParser.json({ limit: "10mb" })); 
 
 app.use("/api/tours", toursRoutes);
 app.use("/api/tour-dates", tourDatesRoutes);

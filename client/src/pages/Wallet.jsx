@@ -42,7 +42,7 @@ export default function Wallet() {
     });
     const data = await res.json();
     if (res.ok) {
-      setAmount(data.amount); // Note: backend returns { amount: ... }
+      setAmount(data.amount);
       setAddValue("");
       setMessage("Money added!");
     } else {

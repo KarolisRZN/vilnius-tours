@@ -14,7 +14,6 @@ const images = [
 function Home() {
   const [current, setCurrent] = useState(0);
 
-  // Auto-change images every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));

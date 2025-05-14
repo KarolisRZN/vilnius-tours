@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router"; // Add this import at the top
-
+import { useNavigate } from "react-router";
 function decodeToken(token) {
   try {
     const payload = token.split(".")[1];
@@ -32,15 +31,15 @@ function AdminPanel() {
   const [selectedDate, setSelectedDate] = useState("");
   const [datesByTour, setDatesByTour] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const [editDates, setEditDates] = useState([]); // Dates for the tour being edited
-  const [editDateInput, setEditDateInput] = useState(""); // New date input
-  const [editDateId, setEditDateId] = useState(null); // If editing an existing date
-  const [date, setDate] = useState(""); // New date for form
-  const [time, setTime] = useState(""); // New time for form
+  const [editDates, setEditDates] = useState([]);
+  const [editDateInput, setEditDateInput] = useState("");
+  const [editDateId, setEditDateId] = useState(null); 
+  const [date, setDate] = useState(""); 
+  const [time, setTime] = useState("");
 
   const token = localStorage.getItem("token");
 
-  const navigate = useNavigate(); // Add this line inside your component
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (token) {
@@ -68,7 +67,7 @@ function AdminPanel() {
     setDatesByTour((prev) => ({ ...prev, [tourId]: dates }));
   };
 
-  // Fetch dates for a tour (for modal)
+  // Fetch dates for a tour
   const fetchEditDates = async (tourId) => {
     const res = await fetch(`/api/tours/${tourId}/dates`);
     const dates = await res.json();
@@ -179,7 +178,7 @@ function AdminPanel() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          tour_id: editingId, // <-- add this!
+          tour_id: editingId,
           date: editDateInput,
           time,
         }),

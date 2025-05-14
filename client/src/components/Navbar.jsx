@@ -299,7 +299,7 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Burger menu */}
       <div
         className={`md:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
           menuOpen

@@ -36,7 +36,7 @@ router.post("/", authMiddleware, async (req, res) => {
   res.json(result.rows[0]);
 });
 
-// Get all reviews (with user name and tour title)
+// Get all reviews
 router.get("/", async (req, res) => {
   const result = await pool.query(
     `SELECT r.*, u.name as user_name, t.title as tour_title

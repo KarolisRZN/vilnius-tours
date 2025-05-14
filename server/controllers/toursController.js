@@ -113,7 +113,7 @@ exports.deleteTour = async (req, res) => {
   }
 };
 
-// Add a date (with time) to a tour
+// Add a date with time to a tour
 exports.addTourDate = async (req, res) => {
   const { tourId } = req.params;
   const { date, time } = req.body;
